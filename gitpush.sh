@@ -4,5 +4,5 @@ DATE=$(date)
 #echo "$DATE"
 
 git add .
-git commit -m "[UPDATE:bulb:] $DATE"
+git commit -m "[UPDATED] $DATE :bulb:" # :tada:
 git push
