@@ -8,15 +8,15 @@ using namespace std; // memset
 
 int M, X;
 double P;
-double dp[MAX_M][(1<<MAX_M) + 1];
+double dp[MAX_M + 1][(1<<MAX_M) + 1];
 
 void printDP(int m, int n){
   for(int i = 0; i < m; i ++) {
     for(int j = 0; j < n; j ++) {
       if(j == n - 1)
-        printf("%.1f", dp[i][j]);
+        printf("%.4f", dp[i][j]);
       else
-        printf("%.1f, ", dp[i][j]);
+        printf("%.4f, ", dp[i][j]);
     }
     printf("\n");
   }
@@ -24,6 +24,8 @@ void printDP(int m, int n){
 
 void solve() {
   int n = 1 << M;
+  int itv = (long long)X * n / 1000000;
+  
   memset(dp, 0, sizeof(double) * n * n);
   dp[0][n] = 1.0;
   for(int r = 0; r < M; r ++) {
@@ -36,21 +38,21 @@ void solve() {
       dp[r + 1][i] = t;
     }
   }
-  //printDP(MAX_M, n + 1);
-  int res = (long long)X * n / 1000000;
+
+  printDP(MAX_M, n + 1);
   //printf("%d\n", res);
-  printf("%.6f\n", dp[M][res]);
+  printf("%.6f\n", dp[M][itv]);
 }
 
 
 int main() {
-  M = 3;
+  //M = 1;
+  //P = 0.5;
+  //X = 500000;
+  M = 2;
   P = 0.75;
   X = 600000;
-  //M = 3;
-  //P = 0.75;
-  //X = 600000;
-  scanf("%d%lf%d", &M, &P, &X); 
+  //scanf("%d%lf%d", &M, &P, &X); 
 
   solve();
   return 0;
