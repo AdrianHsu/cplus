@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cstring>
 #include <queue>
+#include <iostream>
 
 #define MAX_H 20
 #define MAX_W 20
@@ -74,9 +75,16 @@ int main() {
     if(W == 0 || H == 0) break;
     memset(room, 0, sizeof(room));
     res = 0;
-    
+
     for(int i = 0; i < H; i++) {  
-      scanf("%s", room[i]);
+      for(int j = 0; j < W; j++) {
+        cin >> room[i][j]; // AC
+        // scanf("%c", &room[i][j]); // read \0
+      }
+    }
+    // printRoom();
+    for(int i = 0; i < H; i++) {  
+      // scanf("%s", room[i]); // it will read \0 
       for(int j = 0; j < W; j++) {
         if(room[i][j] == '@'){
           pos_y = i;
