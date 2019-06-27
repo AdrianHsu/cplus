@@ -7,7 +7,7 @@
 #include <queue>
 
 #define MAX_V 15
-#define INF (1 << 30)
+#define INF 0xfffffff
 
 using namespace std;
 
