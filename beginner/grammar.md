@@ -16,11 +16,29 @@ for(int i = 0; i < H; i++) {
 for(int i = 0; i < H; i++) {  
    for(int j = 0; j < W; j++) {
      cin >> room[i][j]; // AC
-     // scanf("%c", &room[i][j]); // weird...
-
+     //用scanf("%c",&room[i][j]);的話會WA,原因未知
+	 //找到錯誤原因了，在前面加getchar()清理緩存區
+     
+     // scanf("%c", &room[i][j]); // weird..
    }
 }
 ```
+
+````
+for(int i = 0; i < H; i++) {  
+   getchar();
+   for(int j = 0; j < W; j++) {
+     // cin >> room[i][j]; // AC
+     scanf("%c", &room[i][j]); // AC!!!
+   }
+}
+````
+
+***getchar*()取得使用者輸入的字元**
+
+輸入時，用scanf（）讀入之前 一定getchar（）一下，前面**加 getchar()清理緩存區**，把Enter吃掉，否則有一行將讀不進來。
+
+gets() 不安全，不要用!
 
 
 
