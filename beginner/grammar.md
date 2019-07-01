@@ -48,3 +48,13 @@ gets() 不安全，不要用!
 2. **遇到 int 就用 scanf**
 3. **全部都用 printf**
 
+
+
+## Vector
+
+```
+vector<string> v1;         // 创建空容器，其对象类型为string类
+vector<string> v2(10);     // 创建有10个具有初始值（即空串）的string类对象的容器
+vector<string> v3(5, "hello"); // 创建有5个值为“hello”的string类对象的容器
+```
+
