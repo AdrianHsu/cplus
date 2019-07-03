@@ -55,7 +55,7 @@ void update(int s, double a, int v, int l, int r) {
   double _cos = cos(ang[v]);
   vx[v] = vx[chl] + (_cos * vx[chr] - _sin * vy[chr]);
   vy[v] = vy[chl] + (_sin * vx[chr] + _cos * vy[chr]);
-
+  
 }
 
 void solve() {
