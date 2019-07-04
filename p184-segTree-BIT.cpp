@@ -10,6 +10,8 @@ using namespace std;
  
 typedef long long ll;
 
+bool isBIT = 1;
+
 int N, Q;
 ll A[MAX_N + 1];
 char T[MAX_Q];
@@ -22,6 +24,7 @@ void add(int a, int b, int x, int k, int l, int r) {
     data[k] += x;
   } else if(l < b && a < r) {
     datb[k] += (min(b, r) - max(a, l)) * x;
+    //printf("bound: %d\n", min(b, r) - max(a, l));
     add(a, b, x, k * 2 + 1, l, (l + r) / 2);
     add(a, b, x, k * 2 + 2, (l + r) / 2, r);
   }
@@ -40,27 +43,29 @@ ll sum(int a, int b, int k, int l, int r) {
 }
 
 void printData() {
+  printf("datA\n");
   for(int i = 0; i < 2 * N; i++) {
-    printf("%lld, ", data[i]);
+    printf("[%d]:%lld, ", i, data[i]);
   }
-  printf("\n");
+  printf("\ndatB\n");
   for(int i = 0; i < 2 * N; i++) {
-    printf("%lld, ", datb[i]);
+    printf("[%d]:%lld, ", i, datb[i]);
   }
-  printf("\n");
+  printf("\n\n");
 }
 
 void solve() {
   // init
   for(int i = 0; i < N; i ++) {
     add(i, i + 1, A[i], 0, 0, N);
+    //printData();
   }
-//  printData();
   for(int i = 0; i < Q; i++) {
     if(T[i] == 'C') // the problem is one-indexed: so -1 here
       add(L[i] - 1, R[i] - 1 + 1, X[i], 0, 0, N);
     else 
       printf("%lld\n", sum(L[i] - 1, R[i] - 1 + 1, 0, 0, N));
+    //printData();
   }
 }
 
@@ -84,6 +89,19 @@ void addBIT(ll *b, int i, int v) {
   }
 }
 
+void printBIT() {
+
+  printf("bit0\n");
+  for(int i = 1; i < N + 1; i++) {
+    printf("[%d]:%lld, ", i, bit0[i]);
+  }
+  printf("\nbit1\n");
+  for(int i = 1; i < N + 1; i++) {
+    printf("[%d]:%lld, ", i, bit1[i]);
+  }
+  printf("\n\n");
+}
+
 void solveBIT() {
   memset(bit0, 0, sizeof(bit0));
   memset(bit1, 0, sizeof(bit1));
@@ -99,7 +117,12 @@ void solveBIT() {
       addBIT(bit1, R[i] + 1, -X[i]);
     } else {
       ll res = 0;
+      //printBIT();
+      //printf("> %lld\n", sumBIT(bit0, R[i]));
+      //printf("> %lld,%d\n", sumBIT(bit1, R[i]), R[i]);
       res += sumBIT(bit0, R[i]) + sumBIT(bit1, R[i]) * R[i];
+      //printf("< %lld\n", sumBIT(bit0, L[i] - 1));
+      //printf("< %lld\n", sumBIT(bit1, L[i] - 1));
       res -= sumBIT(bit0, L[i] - 1) + sumBIT(bit1, L[i] - 1) * (L[i] - 1);
       printf("%lld\n", res);
     }
@@ -110,8 +133,11 @@ int main() {
 
   scanf("%d%d", &N, &Q);
   for(int i = 0; i < N; i ++) {
-    //scanf("%lld", &A[i]); // if using SegTree
-    scanf("%lld", &A[i + 1]); // if using BIT
+
+    if(isBIT)
+      scanf("%lld", &A[i + 1]); // if using BIT
+    else
+      scanf("%lld", &A[i]); // if using SegTree
   }
   for(int i = 0; i < Q; i++) {
     cin >> T[i];
@@ -121,6 +147,9 @@ int main() {
       scanf("%d%d%d", &L[i], &R[i], &X[i]);
     }
   }
-  solveBIT();
+  if(isBIT)
+    solveBIT();
+  else
+    solve();
   return 0;
 }
