@@ -38,6 +38,8 @@ void solve() {
 
 int main() {
   while(scanf("%d%d", &n, &m) != EOF) {
+    if(n == 0 && m == 0) break;
+
     solve();
   }
   return 0;
