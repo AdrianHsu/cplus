@@ -10,6 +10,14 @@ using namespace std;
 int dp [MAX_N * MAX_M][1 << MAX_M];
 int n = 0, m = 0;
 
+void printDP(){
+  for(int i = 0; i < n * m + 1; i++){
+    for(int j = 0; j < 1 << m; j++)
+      printf("%d, ", dp[i][j]);
+    printf("\n");
+  }
+}
+
 void solve() {
   memset(dp, -1, sizeof(dp));
   int iter = 0;
@@ -29,6 +37,8 @@ void solve() {
           
           dp[iter + 1][u] = res;
         }
+        //printf("%d,%d,%d\n", i, j, u);
+        //printDP();
       }
       iter ++;
     }
