@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <iostream>
 #include <vector>
 #include <algorithm>
 #include <queue>
@@ -8,7 +9,7 @@
 using namespace std;
 
 struct edge {
-  int to, cap, rev;
+  int from, to, cap, rev;
 };
 
 vector<edge> G[MAX_V];
@@ -16,8 +17,8 @@ bool used[MAX_V];
 
 void addEdge(int from, int to, int cap) {
 
-  G[from].push_back((edge){to, cap, G[to].size()});
-  G[to].push_back((edge){from, 0, G[from].size() - 1});
+  G[from].push_back((edge){from, to, cap, G[to].size()});
+  G[to].push_back((edge){to, from, 0, G[from].size() - 1});
 }
 
 int dfsFord(int v, int t, int f) {
@@ -45,6 +46,43 @@ int maxFlowFord(int s, int t) {
     int f = dfsFord(s, t, 1e9);
     if(f == 0)
       return flow;
+    flow += f;
+  }
+}
+
+void bfsKarp(int s, vector<edge*> &pred) {
+  
+  queue<int> que;
+  que.push(s);
+  while(!que.empty()) {
+    int v = que.front(); que.pop();
+    for(int i = 0; i < G[v].size(); i++){
+      edge &e = G[v][i];
+      if(pred[e.to] == 0 && e.cap > 0) {
+        que.push(e.to);
+        pred[e.to] = &e;
+      }
+    }
+  }
+}
+
+int maxFlowKarp(int s, int t) {
+  int flow = 0;
+  while(true) {
+    vector<edge*> pred(MAX_V, (edge*) NULL);
+    bfsKarp(s, pred);
+    if(pred[t] == 0) return flow;
+   
+    int f = 1e9;
+    for(int v = t; v != s; v = pred[v]->from) {
+      edge *e = pred[v];
+      f = min(f, e->cap);
+    }
+    for(int v = t; v != s; v = pred[v]->from) {
+      edge *e = pred[v];
+      e->cap -= f;
+      G[e->to][e->rev].cap += f;
+    }
     flow += f;
   }
 }
@@ -104,10 +142,10 @@ int main(){
   while(scanf("%d%d%d", &from, &to, &c) != EOF) {
     addEdge(from, to, c);
   }
-  
   // choose only one of them
-  printf("result: %d\n", maxFlowDinic(0, 4));
 //  printf("result: %d\n", maxFlowFord(0, 4));
+  printf("result: %d\n", maxFlowKarp(0, 4));
+//  printf("result: %d\n", maxFlowDinic(0, 4));
   
   return 0;
 }
