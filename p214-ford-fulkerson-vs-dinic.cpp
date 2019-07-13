@@ -20,14 +20,14 @@ void addEdge(int from, int to, int cap) {
   G[to].push_back((edge){from, 0, G[from].size() - 1});
 }
 
-int dfs(int v, int t, int f) {
+int dfsFord(int v, int t, int f) {
   if(v == t) return f;
   used[v] = true;
   for(int i = 0; i < G[v].size(); i++) {
     edge &e = G[v][i];
     if(!used[e.to] && e.cap > 0) {
       //printf("%d, %d, %d\n", v, e.to, used[e.to]);
-      int d = dfs(e.to, t, min(f, e.cap));
+      int d = dfsFord(e.to, t, min(f, e.cap));
       if(d > 0) {
         e.cap -= d;
         G[e.to][e.rev].cap += d;
@@ -42,7 +42,7 @@ int maxFlowFord(int s, int t) {
   int flow = 0;
   while(true) {
     memset(used, 0, sizeof(used));
-    int f = dfs(s, t, 1e9);
+    int f = dfsFord(s, t, 1e9);
     if(f == 0)
       return flow;
     flow += f;
@@ -52,7 +52,7 @@ int maxFlowFord(int s, int t) {
 int level[MAX_V];
 int iter[MAX_V];
 
-void bfs(int s) {
+void bfsDinic(int s) {
   memset(level, -1, sizeof(level));
   queue<int> que;
   level[s] = 0;
@@ -74,10 +74,10 @@ int dfsDinic(int v, int t, int f) {
   for(int &i = iter[v]; i < G[v].size(); i++) {
     edge &e = G[v][i];
     if(e.cap > 0 && level[v] + 1 == level[e.to]) {
-      int d = dfs(e.to, t, min(f, e.cap));
+      int d = dfsDinic(e.to, t, min(f, e.cap));
       if(d > 0) {
-        e.cap += d;
-        G[e.to][e.rev].cap -= d;
+        e.cap -= d;
+        G[e.to][e.rev].cap += d;
         return d;
       }
     }
@@ -88,7 +88,7 @@ int dfsDinic(int v, int t, int f) {
 int maxFlowDinic(int s, int t) {
   int flow = 0, f;
   while(true) {
-    bfs(s);
+    bfsDinic(s);
     if(level[t] < 0) return flow;
     memset(iter, 0, sizeof(iter));
     int f = dfsDinic(s, t, 1e9);
@@ -104,8 +104,10 @@ int main(){
   while(scanf("%d%d%d", &from, &to, &c) != EOF) {
     addEdge(from, to, c);
   }
+  
+  // choose only one of them
   printf("result: %d\n", maxFlowDinic(0, 4));
-  //printf("result: %d\n", maxFlowFord(0, 4));
+//  printf("result: %d\n", maxFlowFord(0, 4));
   
   return 0;
 }
