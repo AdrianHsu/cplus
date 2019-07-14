@@ -131,9 +131,11 @@ int maxFlowDinic(int s, int t) {
     bfsDinic(s);
     if(level[t] < 0) return flow;
     memset(iter, 0, sizeof(iter));
-    int f = dfsDinic(s, t, 1e9);
-    if(f > 0){
-      flow += f;
+    while(true){
+      int f = dfsDinic(s, t, 1e9);
+      if(f > 0){
+        flow += f;
+      } else break;
     }
   }
   // no need to return 
@@ -146,8 +148,8 @@ int main(){
   }
   // choose only one of them
 //  printf("result: %d\n", maxFlowFord(0, 4));
-  printf("result: %d\n", maxFlowKarp(0, 4));
-//  printf("result: %d\n", maxFlowDinic(0, 4));
+//  printf("result: %d\n", maxFlowKarp(0, 4));
+  printf("result: %d\n", maxFlowDinic(0, 4));
   
   return 0;
 }
