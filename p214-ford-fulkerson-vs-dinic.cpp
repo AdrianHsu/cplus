@@ -17,8 +17,10 @@ bool used[MAX_V];
 
 void addEdge(int from, int to, int cap) {
 
-  G[from].push_back((edge){from, to, cap, G[to].size()});
-  G[to].push_back((edge){to, from, 0, G[from].size() - 1});
+  edge a = (edge){from, to, cap, G[to].size()};
+  edge b = (edge){to, from, 0, G[from].size()};
+
+  G[from].push_back(a); G[to].push_back(b);
 }
 
 int dfsFord(int v, int t, int f) {
