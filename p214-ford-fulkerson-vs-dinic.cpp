@@ -9,7 +9,7 @@
 using namespace std;
 
 struct edge {
-  int from, to, cap, rev;
+  int to, cap, rev;
 };
 
 vector<edge> G[MAX_V];
@@ -17,8 +17,8 @@ bool used[MAX_V];
 
 void addEdge(int from, int to, int cap) {
 
-  edge a = (edge){from, to, cap, G[to].size()};
-  edge b = (edge){to, from, 0, G[from].size()};
+  edge a = (edge){to, cap, G[to].size()};
+  edge b = (edge){from, 0, G[from].size()};
 
   G[from].push_back(a); G[to].push_back(b);
 }
@@ -52,7 +52,9 @@ int maxFlowFord(int s, int t) {
   }
 }
 
-void bfsKarp(int s, vector<edge*> &pred) {
+int prevv[MAX_V], preve[MAX_V];
+
+void bfsKarp(int s) {
   
   queue<int> que;
   que.push(s);
@@ -60,9 +62,10 @@ void bfsKarp(int s, vector<edge*> &pred) {
     int v = que.front(); que.pop();
     for(int i = 0; i < G[v].size(); i++){
       edge &e = G[v][i];
-      if(pred[e.to] == 0 && e.cap > 0) {
+      if(prevv[e.to] == -1 && e.cap > 0) {
         que.push(e.to);
-        pred[e.to] = &e;
+        prevv[e.to] = v;
+        preve[e.to] = i;
       }
     }
   }
@@ -71,19 +74,20 @@ void bfsKarp(int s, vector<edge*> &pred) {
 int maxFlowKarp(int s, int t) {
   int flow = 0;
   while(true) {
-    vector<edge*> pred(MAX_V, (edge*) NULL);
-    bfsKarp(s, pred);
-    if(pred[t] == 0) return flow;
+    memset(prevv, -1, sizeof(prevv));
+    memset(preve, -1, sizeof(preve));
+    bfsKarp(s);
+    if(prevv[t] == -1) return flow;
    
     int f = 1e9;
-    for(int v = t; v != s; v = pred[v]->from) {
-      edge *e = pred[v];
-      f = min(f, e->cap);
+    for(int v = t; v != s; v = prevv[v]) {
+      edge &e = G[prevv[v]][preve[v]];
+      f = min(f, e.cap);
     }
-    for(int v = t; v != s; v = pred[v]->from) {
-      edge *e = pred[v];
-      e->cap -= f;
-      G[e->to][e->rev].cap += f;
+    for(int v = t; v != s; v = prevv[v]) {
+      edge &e = G[prevv[v]][preve[v]];
+      e.cap -= f;
+      G[e.to][e.rev].cap += f;
     }
     flow += f;
   }
