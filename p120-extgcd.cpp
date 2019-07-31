@@ -19,7 +19,7 @@ int extgcd(int a, int b, int &x, int &y) {
 
 int main() {
   int x, y;
-  cout << extgcd(12, 42, x, y) << endl;
+  cout << extgcd(12, 28, x, y) << endl;
   cout << x << "," << y << endl;
   return 0;
 }
