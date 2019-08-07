@@ -11,6 +11,7 @@ int dp[MAX_N + 1][MAX_W + 1];
 int N, W;
 int w[MAX_N];
 int v[MAX_N];
+int m[MAX_N];
 
 void solve01() {
   for(int i = 0; i < N; i++) {
@@ -65,13 +66,8 @@ void solveFull2() {
     int num = W / w[i];
     for(int k = 1; num > 0; k <<= 1) {
       int mul = min(k, num);
-      for(int j = 0; j <= W; j++) {
-        if(j - mul * w[i]  < 0) {
-          dp[i + 1][j] = dp[i][j];
-        } else {
-          dp[i + 1][j] = max(dp[i][j], dp[i][j - mul * w[i]] + mul * v[i]);
-        }
-      }
+      for(int j = W; j >= mul * w[i]; j--)
+        dp[N][j] = max(dp[N][j], dp[N][j - mul * w[i]] + mul * v[i]);
       num -= mul;
     }
   }
@@ -85,6 +81,30 @@ void solveFull3() {
       } else {
         dp[i + 1][j] = max(dp[i][j], dp[i + 1][j - w[i]] + v[i]);
       }
+    }
+  }
+}
+
+void solveMulti1() {
+  for(int i = 0; i < N; i++) {
+    for(int j = 0; j <= W; j++) {
+      int upper = min(j / w[i], m[i]);
+      for(int k = 0; k <= upper; k++) {
+          dp[i + 1][j] = max(dp[i + 1][j], dp[i][j - k * w[i]] + k * v[i]);
+      }
+    }
+  }
+}
+
+void solveMulti2() {
+  for(int i = 0; i < N; i++) {
+    int num = m[i]; 
+    for(int k = 1; num > 0; k <<= 1) {
+      int mul = min(k, num);
+      for(int j = W; j >= mul * w[i]; j--) {
+        dp[N][j] = max(dp[N][j], dp[N][j - mul * w[i]] + mul * v[i]);
+      }
+      num -= mul;
     }
   }
 }
@@ -110,7 +130,17 @@ int main() {
   //solveFull1();
   solveFull2();
   //solveFull3();
-  
+ 
+  //N = 3; W = 12;
+  //int w4[] = {3, 2, 4};
+  //int v4[] = {2, 4, 3};
+  //int m4[] = {5, 4, 3};
+  //memcpy(w, w4, sizeof(w4));
+  //memcpy(v, v4, sizeof(v4));
+  //memcpy(m, m4, sizeof(m4));
+  //solveMulti1();
+  //solveMulti2();
+
   printf("answer: %d\n", dp[N][W]);
   return 0;
 }
