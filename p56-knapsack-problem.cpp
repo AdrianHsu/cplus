@@ -59,6 +59,7 @@ void solveFull1() {
 }
 
 // Binary item size
+// more similar to 0/1 knapsack, rather than the solveFull1()
 void solveFull2() {
   for(int i = 0; i < N; i++) {
     int num = W / w[i];
