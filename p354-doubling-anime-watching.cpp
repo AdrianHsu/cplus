@@ -52,6 +52,14 @@ void solve() {
   printf("ans: %d\n", res);
 }
 
+void printNext() {
+  for(int i = 0; i < MAX_LOG_N; i++) {
+    for(int j = 0; j < 2 * N; j++)
+      cout << __next[i][j] << " ";
+    cout << endl;
+  }
+}
+
 void solve2() {
   int res = 0;
 
@@ -89,7 +97,7 @@ void solve2() {
         __next[k + 1][i] = __next[k][__next[k][i]];
     }
   }
-
+  printNext();
   for(int i = 0; i < N; i++) {
     int tmp = 0, j = i;
      
