@@ -102,10 +102,11 @@ void solve2() {
     int tmp = 0, j = i;
      
     for(int k = MAX_LOG_N - 1; k >= 0; k--) {
-      int j2 = __next[k][i];
+      int j2 = __next[k][j];
       if(j2 >= 0 && t[j2] <= s[i] + M) {
         j = j2;
         tmp |= (1 << k);
+        cout << i << "," << k << "," << tmp << endl;
       }
     }
     res = max(res, tmp + 1);
@@ -114,9 +115,11 @@ void solve2() {
 }
 
 int main() {
-  N = 3; M = 10;
-  int s1[] = {0, 4, 6};
-  int t1[] = {5, 6, 3};
+  N = 6; M = 10;
+  //int s1[] = {0, 4, 6};
+  //int t1[] = {5, 6, 3};
+  int s1[] = {0, 2, 4, 6, 8, 9};
+  int t1[] = {1, 3, 5, 8, 9, 2};
 
   memcpy(s, s1, sizeof(s1));
   memcpy(t, t1, sizeof(t1));
