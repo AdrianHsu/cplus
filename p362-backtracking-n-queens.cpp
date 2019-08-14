@@ -18,6 +18,18 @@ void printResult() {
   }
   cout << endl;
 }
+bool canPlace(int i, int k) {
+  for(int j = 1; j < k; j++) {
+    if(x[j] == i) {// same col
+      return false;
+    } else if(x[k - j] == i - j) { // same diag (left)
+      return false;
+    } else if(i + j <= N && x[k - j] == i + j) { // same diag (right)
+      return false;
+    }
+  }
+  return true;
+}
 
 void backtracking(int k) {
   if(k == N + 1) {
@@ -25,21 +37,8 @@ void backtracking(int k) {
     num ++;
     return;
   }
-  for(int i = 1; i <= N; i++) { // where to put Qi
-    bool flag = true;
-    for(int j = 1; j < k; j++) {
-      if(x[j] == i) {// same col
-        flag = false;
-        break;
-      } else if(x[k - j] == i - j) { // same diag (left)
-        flag = false;
-        break;
-      } else if(i + j <= N && x[k - j] == i + j) { // same diag (right)
-        flag = false;
-        break;
-      }
-    }
-    if(flag) {
+  for(int i = 1; i <= N; i++) { // where to put Qk
+    if(canPlace(i, k)) { // we can place Qk at index i
       x[k] = i;
       backtracking(k + 1);
       x[k] = 0;
