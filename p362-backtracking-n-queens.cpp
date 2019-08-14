@@ -5,7 +5,7 @@
 
 using namespace std;
 int N;
-int x[MAX_N];
+int x[MAX_N + 1];
 int num;
 
 void printResult() {
@@ -52,9 +52,53 @@ void solve() {
   backtracking(1);
 }
 
+int b[MAX_N]; // e.g. b = {2, 8, 1, 4} that is, {0010, 1000, 0001, 0100}
+
+void printBinary() {
+  for(int i = 0; i < N; i++) {
+    for(int j = N - 1; j >= 0; j--) {
+      if(b[i] >> j == 1) cout << "Q";
+      else cout << ".";
+    }
+    cout << endl;
+  }
+  cout << endl;
+}
+
+bool canPlaceBinary(int i, int k) {
+  for(int j = 0; j < k; j++) {
+    if(b[j] == i) return false;
+    else if(b[k - (j + 1)] == i << (j + 1)) return false;
+    else if(b[k - (j + 1)] == i >> (j + 1)) return false;
+  }
+  return true;
+}
+
+void backtrackingBinary(int k) {
+  if(k == N) {
+    printBinary();
+    num++;
+    return;
+  }
+  for(int i = N - 1; i >= 0; i--) {
+    int val = 1 << i;
+    if(canPlaceBinary(val, k)) {
+      b[k] = val;
+      backtrackingBinary(k + 1);
+      b[k] = 0;
+    }
+  }
+}
+
+void solveBinary() {
+  num = 0;
+  memset(b, 0, sizeof(b));
+  backtrackingBinary(0);
+}
+
 int main() {
   while(scanf("%d", &N) != EOF) {
-    solve();
+    solveBinary();
     cout << "num of solutions: " << num << endl;
   }
   return 0;
