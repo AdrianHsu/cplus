@@ -1,41 +1,32 @@
 #include <cstdio>
-#include <iostream>
-
-#define MAX_N 1001
+#include <cstring>
 using namespace std;
 
-int N;
+const int MAX_N = 1010;
+int num[MAX_N], N, maxH;
 
-void iddfs(int s, int &round) {
-  if(N == s) {
-    return;
+bool iddfs(int n, int curH)
+{ 
+  if(n << (maxH - curH) < N) return 0;
+  if(curH > maxH) return 0;
+  if(n == N) return 1;
+  num[curH] = n;
+  for(int i = 0; i <= curH; i++){
+    if(iddfs(n + num[i], curH + 1)) return 1;
+    if(iddfs(n - num[i], curH + 1)) return 1; 
   }
-  if((N - s) < (1 << round)) {
-    int res = N - s;
-    while(res != 0) {
-      if(res & 1) {
-        round ++;
-      }
-      res >>= 1;
-    }
-  } else {
-    s <<= 1;
-    round += 1;
-    iddfs(s, round);
-  }
+  return 0;
 }
-
 void solve() {
-  int round = 0;
-  int s = 1;
-  iddfs(s, round);
-  cout << round << endl;
+  while(!iddfs(1, 0)){
+    memset(num, 0, sizeof(num));
+    maxH++;
+  }
+  printf("%d\n",maxH);
 }
-
 int main() {
-
-  while(scanf("%d", &N) != EOF) {
-    if(N == 0) break;
+  while(scanf("%d",&N) && N){
+    maxH = 0, memset(num, 0, sizeof(num));
     solve();
   }
   return 0;
