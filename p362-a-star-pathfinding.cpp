@@ -86,7 +86,6 @@ void astar(int y, int x) {
     
     if(f[dy][dx] < currentMin) {
       move = true;
-      //cout << f[dy][dx] << endl;
       currentMin = f[dy][dx];
       next.first = dy;
       next.second = dx;
@@ -98,11 +97,12 @@ void astar(int y, int x) {
         break;
       }
     }
-    if(push) open.push_back(P(dy, dx)); 
+    if(push)  {
+      open.push_back(P(dy, dx)); 
+    }
   }
   printMap();
   
-  //cout << open.size() << endl;
   if(open.size() == 0) {
     cout << "NO ROUTE" << endl; 
     return;
@@ -121,7 +121,6 @@ void astar(int y, int x) {
       }
     }
 
-    cout << next.first << "," << next.second << endl;
     astar(next.first, next.second);
   }
 }
@@ -129,6 +128,9 @@ void walkBack() {
   P p;
   p.first = t.first;
   p.second = t.second;
+  if(p.first == -1 && p.second == -1) {
+    return;
+  }
   while(true) {
     map[p.first][p.second] = '@';
     printMap();
@@ -139,17 +141,13 @@ void walkBack() {
   }
 }
 void solve() {
-  for(int i = 0; i < H; i++){ 
-    for(int j = 0; j < W; j++) {
-      g[i][j] = 1e8;
-      f[i][j] = 1e8;
-    }
-  }
   g[s.first][s.second] = 0;
   f[s.first][s.second] = h(s.first, s.second);
+  open.clear(); 
   open.push_back(s);
   astar(s.first, s.second);
-  walkBack();
+  cout << "----------" << endl;
+  //walkBack();
   cout << "min distance: " << f[t.first][t.second] << endl;
 }
 
@@ -161,6 +159,15 @@ int main() {
 //.......
   while(scanf("%d%d", &H, &W) != EOF) {
     if(H == 0 && W == 0) break;
+    for(int i = 0; i < MAX_H; i++){ 
+      for(int j = 0; j < MAX_W; j++) {
+        map[i][j] = 0;
+        g[i][j] = 1e8;
+        f[i][j] = 1e8;
+        parent[i][j] = P(-1, -1);
+      }
+    }
+    
     for(int i = 0; i < H; i++) {
       for(int j = 0; j < W; j++) {
         cin >> map[i][j];
