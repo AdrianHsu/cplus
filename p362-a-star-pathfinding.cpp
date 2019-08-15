@@ -11,6 +11,7 @@
 
 using namespace std;
 typedef pair<int, int> P;
+typedef pair<int, P> Q;
 
 const int direct[8][2] = {
   {-1, 0}, // += 10
@@ -33,7 +34,7 @@ P parent[MAX_H + 1][MAX_W + 1];
 
 P s;
 P t;
-vector<P> open;
+priority_queue<Q, vector<Q>, greater<Q> > open;
 
 void printMap() {
   for(int i = 0; i < H; i++) {
@@ -52,18 +53,11 @@ int h(int y, int x) { // heuristic function
 }
 void astar(int y, int x) {
   map[y][x] = '0'; // close
-  for(int i = 0; i < open.size(); i++) {
-    if(open[i].first == y && open[i].second == x) {
-      open.erase(open.begin() + i);
-      break;
-    }
-  }
   if(y == t.first && x == t.second) {
+    //cout << "REACH END" << endl;
     return;
   }
-  int dy, dx, currentMin = f[y][x];
-  P next;
-  bool move = false;
+  int dy, dx;
   for(int k = 0; k < 8; k++) {
     dy = y + direct[k][0];
     dx = x + direct[k][1];
@@ -73,7 +67,6 @@ void astar(int y, int x) {
     if(k == 5 && (map[dy][dx - 1] == '#' || map[dy + 1][dx] == '#')) continue;
     if(k == 6 && (map[dy][dx - 1] == '#' || map[dy - 1][dx] == '#')) continue;
     if(k == 7 && (map[dy][dx + 1] == '#' || map[dy - 1][dx] == '#')) continue;
-    map[dy][dx] = 'o';
     if(k < 4)
       g[dy][dx] = min(g[dy][dx], g[y][x] + 10);
     else
@@ -84,53 +77,28 @@ void astar(int y, int x) {
       parent[dy][dx] = P(y, x);
     }
     
-    if(f[dy][dx] < currentMin) {
-      move = true;
-      currentMin = f[dy][dx];
-      next.first = dy;
-      next.second = dx;
-    }
-    bool push = true;
-    for(int i = 0; i < open.size(); i++) {
-      if(open[i].first == dy && open[i].second == dx) {
-        push = false;
-        break;
-      }
-    }
-    if(push)  {
-      open.push_back(P(dy, dx)); 
+    if(map[dy][dx] == '.')  {
+      open.push(Q(f[dy][dx], P(dy, dx))); 
+      map[dy][dx] = 'o';
     }
   }
-  printMap();
+  //printMap();
   
   if(open.size() == 0) {
     cout << "NO ROUTE" << endl; 
     return;
   }
   
-  if(move) {
-    astar(next.first, next.second);
-  } else {
-    currentMin = 1e9;
-
-    for(int i = 0; i < open.size(); i++) {
-      if(f[open[i].first][open[i].second] < currentMin) {
-        currentMin = f[open[i].first][open[i].second];
-        next.first = open[i].first;
-        next.second = open[i].second;
-      }
-    }
-
-    astar(next.first, next.second);
-  }
+  Q q = open.top();
+  open.pop();
+  astar(q.second.first, q.second.second);
 }
 void walkBack() {
   P p;
+
   p.first = t.first;
   p.second = t.second;
-  if(p.first == -1 && p.second == -1) {
-    return;
-  }
+  if(parent[t.first][t.second].first == -1 && parent[t.first][t.second].second == -1) return;
   while(true) {
     map[p.first][p.second] = '@';
     printMap();
@@ -143,11 +111,13 @@ void walkBack() {
 void solve() {
   g[s.first][s.second] = 0;
   f[s.first][s.second] = h(s.first, s.second);
-  open.clear(); 
-  open.push_back(s);
+
+  while(!open.empty())
+    open.pop();
+  //open.push(Q(f[s.first][s.second], s));
   astar(s.first, s.second);
   cout << "----------" << endl;
-  //walkBack();
+  walkBack();
   cout << "min distance: " << f[t.first][t.second] << endl;
 }
 
@@ -174,11 +144,11 @@ int main() {
         if(map[i][j] == 's') {
           s.first = i;
           s.second = j;
-          //map[i][j] = '.';
+          map[i][j] = '.';
         } else if(map[i][j] == 't') {
           t.first = i;
           t.second = j;
-          //map[i][j] = '.';
+          map[i][j] = '.';
         }
       }
     }
