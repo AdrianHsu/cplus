@@ -13,9 +13,9 @@ int ans[MAX_N + 1][MAX_N + 1];
 
 struct State {
   int a[MAX_N + 1][MAX_N + 1];
-  int f;
+  int f, g;
   P blank;
-  State *parent;
+  int parent;
 };
 
 State root;
@@ -36,7 +36,7 @@ const int direct[4][2] = {
 
 int cal_h(State s) {
   int h = 0;
-  for(int i = 0; i < N; i++) 
+  for(int i = 0; i < N; i++) { 
     for(int j = 0; j < N; j++)  {
       // manhattan distance
       int pos = s.a[i][j] - 1; // e.g. = 4, then pos = 3
@@ -45,42 +45,42 @@ int cal_h(State s) {
       int j_ = pos % N;
       h += abs(i_ - i) + abs(j_ - j);
     }
+  }
   return h;
 }
 
 
-State genInit(int *a[MAX_N + 1], int g) {
+State genInit(int *input[MAX_N + 1]) {
 
   State res;
   for(int i = 0; i < N; i++)
     for(int j = 0; j < N; j++) {
-      res.a[i][j] = a[i][j];
-      if(a[i][j] == 0) {
+      res.a[i][j] = input[i][j];
+      if(res.a[i][j] == 0) {
         res.blank.first = i;
         res.blank.second = j;
       }
     }
-  res.f = g + cal_h(res);
-  res.parent = &root;
+  res.g = 0;
+  res.f = res.g + cal_h(res);
+  res.parent = -1;
   return res;
 }
 
 bool theSame(State ss, State s) {
-  bool flag = true;
-  for(int j = 0; j < N; j++) {
-    if(flag == false) break;
-    for(int k = 0; k < N; k++) {
-      if(ss.a[j][k] != s.a[j][k]) {
-        flag = false;
-        break;
-      }
-    }
-  }
-  return flag;
+  if(ss.blank.first != s.blank.first || 
+     ss.blank.second != s.blank.second) return false;
+ 
+  for(int j = 0; j < N; j++)  
+    for(int k = 0; k < N; k++) 
+      if(ss.a[j][k] != s.a[j][k])
+        return false;
+      
+  return true;
 }
 
 int inClosedList(State s) {
-  for(int i = 0; i < closed.size(); i++) {
+  for(int i = closed.size() - 1; i >= 0; i--) {
     State ss = closed[i];
     if(theSame(ss, s)) return i;// same
   }
@@ -94,7 +94,7 @@ int inOpenList(State s) {
   return -1;
 }
 
-State genNew(State s, int dy, int dx, int g) {
+State genNew(State s, int dy, int dx) {
   State res;
   for(int i = 0; i < N; i++) {
     for(int j = 0; j < N; j++) {
@@ -107,8 +107,8 @@ State genNew(State s, int dy, int dx, int g) {
   
   res.blank.first = dy;
   res.blank.second = dx;
-  res.f = g + cal_h(res);
-  res.parent = &s;
+  res.g = s.g + 1;
+  res.f = res.g + cal_h(res);
   return res;
 }
 
@@ -120,68 +120,84 @@ void printState(State s) {
     cout << endl;
   }
   cout << endl;
+  //cout << "h: " << cal_h(s) << "\n" << endl;
 }
 
-void astar(int dep) {
+int astar() {
+  while(open.size() != 0) {
+    State s = open[0];
+    //printState(s);
+    if(cal_h(s) == 0) { // done
+      return s.g;
+    }
+    open.erase(open.begin());
+    closed.push_back(s);
+    int pid = closed.size() - 1;
 
-  State s = open[0];
-  //printState(s);
-  if(cal_h(s) == 0) { // done
-    cout << "dep:" << dep << endl;
-    root.parent = &s;
-    return;
-  }
-  open.erase(open.begin());
-  for(int i = 0; i < 4; i++) {
-    int dy = s.blank.first + direct[i][0];
-    int dx = s.blank.second + direct[i][1];
-    if(dy < 0 || dy >= N || dx < 0 || dx >= N) continue;
-    State m = genNew(s, dy, dx, dep); 
-    if(inClosedList(m) != -1) continue; // == -1 means, 沒有一樣的在裡面
-    int o = inOpenList(m);
-    if(o == -1)
-      open.push_back(m);
-    else {
-      int h = cal_h(open[o]);
-      if(dep + h < open[o].f) { 
-        open[o].f = dep + h;
-        open[o].parent = &s;
+    for(int i = 0; i < 4; i++) {
+      int dy = s.blank.first + direct[i][0];
+      int dx = s.blank.second + direct[i][1];
+      if(dy < 0 || dy >= N || dx < 0 || dx >= N) continue;
+      State m = genNew(s, dy, dx); 
+      m.parent = pid;
+      int in = inClosedList(m);  // == -1 means, 沒有一樣的在裡面
+      int op = inOpenList(m);
+      if(op != -1) {
+        int h = cal_h(open[op]);
+        if(m.g + h < open[op].f) {
+          open[op].g = m.g;
+          open[op].f = m.g + h;
+          open[op].parent = pid;
+        }
+      } else if(in != -1) {
+        int h = cal_h(closed[in]);
+        if(m.g + h < closed[in].f) {
+          open.push_back(m);
+          //closed.erase(closed.begin() + in); // no way! the index will be effected..
+        }
+      } else {
+        open.push_back(m);
       }
     }
+    sort(open.begin(), open.end());
   }
-  closed.push_back(s);
-  if(open.size() == 0) {
-    cout << "NO ROUTE" << endl;
-  }
-  sort(open.begin(), open.end());
-  astar(dep + 1);
+  cout << "NO ANSWER" << endl;
+  return -1;
 }
 
-void reversePrint() {
-  State fin;
-  for(int i = 0; i < N; i++)
-    for(int j = 0; j < N; j++)
-      fin.a[i][j] = ans[i][j];
-  
-  State s = root;
-  s = *s.parent;
-  while(!theSame(s, fin)) {
+void reversePrint(int result) {
+  State s = open[0];
+  int i = 1;
+  while(true) {
+
+    cout << "Step " << result - i + 1 << ":" << endl;
     printState(s);
-    s = *s.parent;
+    if(s.parent == -1) break;
+    s = closed[s.parent];
+    i++;
   }
 }
 
 void solve(int *a[MAX_N + 1]) {
-  State start = genInit(a, 0);
+  State start = genInit(a);
+  cout << "input: " << endl;
+  printState(start);
+  cout << "---------------" << endl;
   open.push_back(start);
-  astar(0);
-  reversePrint();
+  int dep = astar();
+  cout << "min depth: " << dep + 1 << endl;
+  cout << "---------------" << endl;
+  reversePrint(dep + 1);
 }
 
 int main() {
   N = 3;
   int fin[] = {1, 2, 3, 4, 5, 6, 7, 8, 0};
-  int val[] = {1, 2, 3, 4, 6, 0, 7, 5, 8};// {2, 3, 0, 7, 6, 8, 1, 5, 4};
+  //int val[] = {1, 2, 3, 4, 6, 0, 7, 5, 8};// {2, 3, 0, 7, 6, 8, 1, 5, 4};
+  int val[] = {1, 6, 4, 8, 7, 0, 3, 2, 5}; // 21 steps in minimum!
+  //int val[] = {2, 3, 0, 1, 6, 8, 7, 5, 4};
+  //int val[] = {6, 0, 2, 8, 4, 5, 7, 3, 1};
+
   int *a[MAX_N + 1];
   for(int i = 0; i < N; i++) {
     a[i] = new int [MAX_N + 1];
