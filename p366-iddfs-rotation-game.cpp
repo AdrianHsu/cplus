@@ -35,7 +35,7 @@ int cnt(){
         
         num = min(num, tmp);
     }
-    return num;
+    return num; // 假如目前 5 個 2 代表有 num = 3，有三格還需要動
 }
 
 
