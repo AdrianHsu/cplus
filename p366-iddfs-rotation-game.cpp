@@ -24,6 +24,19 @@ bool check() {
   return true;
 }
 
+int cnt(){
+    int num = 1e9;
+    for(int i = 1; i <= 3; i++){ // try: symbols 1 or 2 or 3
+        int tmp = 0;
+        // 檢查目前中央那 8 格之中，共有幾個 = i。越多越好，假如 2 有 7 個、
+        // 1 有 3 個，那當然是選把 2 湊齊，因為比較容易
+        for(int j = 0; j < 8; j++)
+            if(a[ c[j] ] != i) tmp++;
+        
+        num = min(num, tmp);
+    }
+    return num;
+}
 
 
 void move(int x) {
@@ -41,7 +54,12 @@ bool dfs(int dep) {
     p[dep] = '\0'; // end of string
     return true;
   }
-  //if(dep + cnt() > maxH) return false;
+  // pruning, e.g. 放棄組出 8 個 1 或 8 個 3，只嘗試組 8 個 2
+  // 因為每次加深一層，最多就是多一個 2（i.e. 擠掉一個 3 ）
+  // 除此之外並不影響其他格。假如目前 5 個 2，代表還需要最少移動 3 次湊齊 8 個 2
+  // 也就是最少要加深 3 層。所以 dep + cnt() > maxH 代表永遠達不到，直接放棄
+  if(dep + cnt() > maxH) return false;
+  
   for(int i = 0; i < 8; i++) {
     p[dep] = 'A' + i; // A, B, C, D, ..., H
     move(i);
