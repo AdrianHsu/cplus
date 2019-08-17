@@ -65,37 +65,31 @@ State genInit(int *a[MAX_N + 1], int g) {
   return res;
 }
 
+bool theSame(State ss, State s) {
+  bool flag = true;
+  for(int j = 0; j < N; j++) {
+    if(flag == false) break;
+    for(int k = 0; k < N; k++) {
+      if(ss.a[j][k] != s.a[j][k]) {
+        flag = false;
+        break;
+      }
+    }
+  }
+  return flag;
+}
+
 int inClosedList(State s) {
   for(int i = 0; i < closed.size(); i++) {
     State ss = closed[i];
-    bool flag = true;
-    for(int j = 0; j < N; j++) {
-      if(flag == false) break;
-      for(int k = 0; k < N; k++) {
-        if(ss.a[j][k] != s.a[j][k]) {
-          flag = false;
-          break;
-        }
-      }
-    }
-    if(flag) return i;// same
+    if(theSame(ss, s)) return i;// same
   }
   return -1;
 }
 int inOpenList(State s) {
   for(int i = 0; i < open.size(); i++) {
     State ss = open[i];
-    bool flag = true;
-    for(int j = 0; j < N; j++) {
-      if(flag == false) break;
-      for(int k = 0; k < N; k++) {
-        if(ss.a[j][k] != s.a[j][k]) {
-          flag = false;
-          break;
-        }
-      }
-    }
-    if(flag) return i;// same
+    if(theSame(ss, s)) return i;
   }
   return -1;
 }
@@ -164,8 +158,14 @@ void astar(int dep) {
 }
 
 void reversePrint() {
+  State fin;
+  for(int i = 0; i < N; i++)
+    for(int j = 0; j < N; j++)
+      fin.a[i][j] = ans[i][j];
+  
   State s = root;
-  while(&*s.parent != &root) {
+  s = *s.parent;
+  while(!theSame(s, fin)) {
     printState(s);
     s = *s.parent;
   }
