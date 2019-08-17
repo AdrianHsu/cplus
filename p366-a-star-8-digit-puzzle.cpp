@@ -142,16 +142,18 @@ int astar() {
       m.parent = pid;
       int in = inClosedList(m);  // == -1 means, 沒有一樣的在裡面
       int op = inOpenList(m);
+      int h = cal_h(m);
       if(op != -1) {
-        int h = cal_h(open[op]);
         if(m.g + h < open[op].f) {
           open[op].g = m.g;
           open[op].f = m.g + h;
           open[op].parent = pid;
         }
       } else if(in != -1) {
-        int h = cal_h(closed[in]);
         if(m.g + h < closed[in].f) {
+          closed[in].g = m.g;
+          closed[in].f = m.g + h;
+          closed[in].parent = pid;
           open.push_back(m);
           //closed.erase(closed.begin() + in); // no way! the index will be effected..
         }
