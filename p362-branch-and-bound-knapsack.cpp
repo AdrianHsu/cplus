@@ -32,7 +32,7 @@ int bound(Node u) {
 
   int profit_bound = u.profit;
   int j = u.level + 1;
-  int totweight = u.weight;
+  double totweight = u.weight;
   
   while(j < N && totweight + items[j].second <= W) {
 
@@ -48,12 +48,12 @@ int bound(Node u) {
 
 void solve() {
   sort(items.begin(), items.end(), cmp);
+
   queue<Node> Q;
   Node u, v;
 
   // dummy node u
   u.level = -1; u.profit = 0; u.weight = 0;
-
   Q.push(u);
 
   int maxProfit = 0;
@@ -71,17 +71,16 @@ void solve() {
       maxProfit = v.profit; 
     
     v.bound = bound(v);
-
     if (v.bound > maxProfit) 
       Q.push(v);
-
+    
     // case 2
     v.weight = u.weight; 
     v.profit = u.profit; 
     v.bound = bound(v); 
     if (v.bound > maxProfit) 
       Q.push(v);
-  }
+   }
   cout << maxProfit << endl;
 }
 
@@ -90,6 +89,7 @@ int main() {
   W = 10.0;
   int c1 [] = {40, 50, 100, 95, 30};
   double w1[] = {2, 3.14, 1.98, 5, 3};
+
   for(int i = 0; i < N; i++) {
     items.push_back(Item(c1[i], w1[i])); 
   }
