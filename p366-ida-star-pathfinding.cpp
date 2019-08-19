@@ -25,7 +25,7 @@ const int direct[8][2] = {
   {1, -1}
 };
 
-
+bool finished;
 int W, H;
 char map[MAX_H + 1][MAX_W + 1];
 P path[(MAX_H + 1) * (MAX_W + 1)]; // acted as a stack
@@ -53,10 +53,11 @@ int search(P p, int cur_g, int bound, int depth) {
   
   int cur_f = cur_g + h(p.first, p.second);
   path[depth] = p;
-  if(cur_f > bound) 
+  if(cur_f > bound)
     return cur_f;
   if(p.first == t.first && p.second == t.second) {
-    return -1;
+    finished = true;
+    return cur_f;
   }
   
   int min_f = 1e9;
@@ -72,14 +73,14 @@ int search(P p, int cur_g, int bound, int depth) {
     if(k == 6 && (map[dy][dx - 1] == '#' || map[dy - 1][dx] == '#')) continue;
     if(k == 7 && (map[dy][dx + 1] == '#' || map[dy - 1][dx] == '#')) continue;
     
-    bool inClosed = false;
+    bool inPath = false;
     for(int i = 0; i < depth; i++) {
       if(path[i].first == dy && path[i].second == dx) {
-        inClosed = true;
+        inPath = true;
         break;
       }
     }
-    if(inClosed) continue;
+    if(inPath) continue;
     
     int next;
     if(k < 4)
@@ -87,9 +88,11 @@ int search(P p, int cur_g, int bound, int depth) {
     else
       next = search(P(dy, dx), cur_g + 14, bound, depth + 1);
     map[p.first][p.second] = 'o';
-    if(next == -1) {
-      return -1;
-    } else if(next < min_f) {
+    if(finished) {
+      return min_f;
+    }
+
+    if(next < min_f) {
       min_f = next;
     } else {
       // do nothing
@@ -98,41 +101,51 @@ int search(P p, int cur_g, int bound, int depth) {
   return min_f;
 }
 
-int idastar(int y, int x) {
+bool idastar(int y, int x) {
   
   int bound = h(y, x);
   while(1) {
     int tmp = search(P(y, x), 0, bound, 0);
-    if(tmp == -1)
-      return bound; // found
-    else if(tmp == 1e9) {
+    if(finished) {
+      return true; // found
+    } else if(tmp == 1e9) {
       cout << "NO ROUTE" <<endl;
-      return -1; // no route
+      return false; // no route
     } else {
       bound = tmp;
     }
   }
 }
-void walk() {
+int walk() {
   
   int i = 0;
+  int ori_y, ori_x, y, x;
+  int res = 0;
   while(1) {
+    ori_y = y;
+    ori_x = x;
+    y = path[i].first;
+    x = path[i].second;
+    if(i > 0) { 
+      int t = abs(y - ori_y) + abs(x - ori_x);
+      if(t == 1) res += 10;
+      else res += 14;
+    }
     if(path[i].first == t.first && path[i].second == t.second)
       break;
-    int y = path[i].first;
-    int x = path[i].second;
     map[y][x] = '@';
     printMap();
     i++;
   }
+  return res;
 }
 void solve() {
   //g[s.first][s.second] = 0;
   //f[s.first][s.second] = h(s.first, s.second);
-
-  int res = idastar(s.first, s.second);
+  finished = false;
+  bool b = idastar(s.first, s.second);
   cout << "----------" << endl;
-  walk();
+  int res = walk();
   cout << "min distance: " << res << endl;
 }
 
