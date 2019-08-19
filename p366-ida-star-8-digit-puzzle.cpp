@@ -103,7 +103,7 @@ int search(State s, int cur_g, int bound) {
     return cur_f;
   if(cal_h(s) == 0) { // reach the end
     finished = true;
-    return cur_f;
+    return bound;
   }
   int min_f = 1e9;
   for(int i = 0; i < 4; i++) {

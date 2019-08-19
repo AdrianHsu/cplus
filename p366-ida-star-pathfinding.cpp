@@ -57,7 +57,7 @@ int search(P p, int cur_g, int bound, int depth) {
     return cur_f;
   if(p.first == t.first && p.second == t.second) {
     finished = true;
-    return cur_f;
+    return bound;
   }
   
   int min_f = 1e9;
