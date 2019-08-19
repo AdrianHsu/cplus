@@ -101,16 +101,16 @@ int search(P p, int cur_g, int bound, int depth) {
   return min_f;
 }
 
-bool idastar(int y, int x) {
+int idastar(int y, int x) {
   
   int bound = h(y, x);
   while(1) {
     int tmp = search(P(y, x), 0, bound, 0);
     if(finished) {
-      return true; // found
+      return bound; // found
     } else if(tmp == 1e9) {
       cout << "NO ROUTE" <<endl;
-      return false; // no route
+      return -1; // no route
     } else {
       bound = tmp;
     }
@@ -143,9 +143,10 @@ void solve() {
   //g[s.first][s.second] = 0;
   //f[s.first][s.second] = h(s.first, s.second);
   finished = false;
-  bool b = idastar(s.first, s.second);
+  int bound = idastar(s.first, s.second);
   cout << "----------" << endl;
   int res = walk();
+  cout << "bound: " << bound << endl; 
   cout << "min distance: " << res << endl;
 }
 

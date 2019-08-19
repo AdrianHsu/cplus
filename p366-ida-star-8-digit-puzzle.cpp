@@ -133,16 +133,16 @@ int search(State s, int cur_g, int bound) {
   }
   return min_f;
 }
-bool idastar(State s) {
+int idastar(State s) {
 
   int bound = cal_h(s);
   while(1) {
     int tmp = search(s, 0, bound);
     if(finished) {
-      return true; // found
+      return bound; // found
     } else if(tmp == 1e9) {
       cout << "NO ROUTE" <<endl;
-      return false; // no route
+      return -1; // no route
     } else {
       bound = tmp;
     }
@@ -165,11 +165,11 @@ void solve(int *a[MAX_N + 1]) {
   State start = genInit(a);
   cout << "input: " << endl;
   printState(start);
-  cout << "---------------" << endl;
   finished = false;
-  bool b = idastar(start);
+  int bound = idastar(start);
   cout << "---------------" << endl;
   int dep = traverse();
+  cout << "bound: " << bound << endl; 
   cout << "min depth: " << dep + 1 << endl;
   // TODO: traverse
 }
