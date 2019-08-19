@@ -5,7 +5,6 @@
 #include <utility>
 #include <vector>
 #include <cmath>
-#include <set>
 
 #define MAX_W 15
 #define MAX_H 15
@@ -26,6 +25,7 @@ const int direct[8][2] = {
   {1, -1}
 };
 
+
 int W, H;
 char map[MAX_H + 1][MAX_W + 1];
 int f[MAX_H + 1][MAX_W + 1];
@@ -35,7 +35,6 @@ P parent[MAX_H + 1][MAX_W + 1];
 P s;
 P t;
 priority_queue<Q, vector<Q>, greater<Q> > open;
-set<P> closed;
 
 void printMap() {
   for(int i = 0; i < H; i++) {
@@ -52,54 +51,47 @@ void printMap() {
 int h(int y, int x) { // heuristic function
   return 10 * (abs(y - t.first) + abs(x - t.second));  
 }
-void astar() {
-  
-  while(open.size() != 0){
-    Q q = open.top();
-    open.pop();
-    int y = q.second.first;
-    int x = q.second.second;
-    closed.insert(q.second);
-  
-    map[y][x] = '0'; // closed
-    if(y == t.first && x == t.second) {
-      //cout << "REACH END" << endl;
-      return;
+void astar(int y, int x) {
+  map[y][x] = '0'; // close
+  if(y == t.first && x == t.second) {
+    //cout << "REACH END" << endl;
+    return;
+  }
+  int dy, dx;
+  for(int k = 0; k < 8; k++) {
+    dy = y + direct[k][0];
+    dx = x + direct[k][1];
+    if(dy < 0 || dy >= H || dx < 0 || dx >= W) continue;
+    if(map[dy][dx] == '#' || map[dy][dx] == '0') continue;
+    if(k == 4 && (map[dy][dx + 1] == '#' || map[dy + 1][dx] == '#')) continue;
+    if(k == 5 && (map[dy][dx - 1] == '#' || map[dy + 1][dx] == '#')) continue;
+    if(k == 6 && (map[dy][dx - 1] == '#' || map[dy - 1][dx] == '#')) continue;
+    if(k == 7 && (map[dy][dx + 1] == '#' || map[dy - 1][dx] == '#')) continue;
+    if(k < 4)
+      g[dy][dx] = min(g[dy][dx], g[y][x] + 10);
+    else
+      g[dy][dx] = min(g[dy][dx], g[y][x] + 14);
+    
+    if(f[dy][dx] > g[dy][dx] + h(dy, dx)) {
+      f[dy][dx] = g[dy][dx] + h(dy, dx);
+      parent[dy][dx] = P(y, x);
     }
-    for(int k = 0; k < 8; k++) {
-      int dy = y + direct[k][0];
-      int dx = x + direct[k][1];
-      if(dy < 0 || dy >= H || dx < 0 || dx >= W) continue;
-      if(map[dy][dx] == '#') continue;
-      //set<P>::iterator it = closed.find(P(dy, dx));
-      //if(it != closed.end()) continue;
-      if(map[dy][dx] == '0') continue;
-
-      if(k == 4 && (map[dy][dx + 1] == '#' || map[dy + 1][dx] == '#')) continue;
-      if(k == 5 && (map[dy][dx - 1] == '#' || map[dy + 1][dx] == '#')) continue;
-      if(k == 6 && (map[dy][dx - 1] == '#' || map[dy - 1][dx] == '#')) continue;
-      if(k == 7 && (map[dy][dx + 1] == '#' || map[dy - 1][dx] == '#')) continue;
-      if(k < 4)
-        g[dy][dx] = min(g[dy][dx], g[y][x] + 10);
-      else
-        g[dy][dx] = min(g[dy][dx], g[y][x] + 14);
-      
-      if(f[dy][dx] > g[dy][dx] + h(dy, dx)) {
-        f[dy][dx] = g[dy][dx] + h(dy, dx);
-        parent[dy][dx] = P(y, x);
-      }
-      
-      if(map[dy][dx] == '.')  {
-        open.push(Q(f[dy][dx], P(dy, dx))); 
-        map[dy][dx] = 'o';
-      }
-    }
-    printMap();
-    if(open.size() == 0) {
-      cout << "NO ROUTE" << endl; 
-      return;
+    
+    if(map[dy][dx] == '.')  {
+      open.push(Q(f[dy][dx], P(dy, dx))); 
+      map[dy][dx] = 'o';
     }
   }
+  //printMap();
+  
+  if(open.size() == 0) {
+    cout << "NO ROUTE" << endl; 
+    return;
+  }
+  
+  Q q = open.top();
+  open.pop();
+  astar(q.second.first, q.second.second);
 }
 void walkBack() {
   P p;
@@ -122,8 +114,8 @@ void solve() {
 
   while(!open.empty())
     open.pop();
-  open.push(Q(f[s.first][s.second], s));
-  astar();
+  //open.push(Q(f[s.first][s.second], s));
+  astar(s.first, s.second);
   cout << "----------" << endl;
   walkBack();
   cout << "min distance: " << f[t.first][t.second] << endl;
