@@ -28,13 +28,10 @@ const int direct[8][2] = {
 
 int W, H;
 char map[MAX_H + 1][MAX_W + 1];
-int f[MAX_H + 1][MAX_W + 1];
-int g[MAX_H + 1][MAX_W + 1];
-P parent[MAX_H + 1][MAX_W + 1];
+P path[(MAX_H + 1) * (MAX_W + 1)]; // acted as a stack
 
 P s;
 P t;
-priority_queue<Q, vector<Q>, greater<Q> > open;
 
 void printMap() {
   for(int i = 0; i < H; i++) {
@@ -51,74 +48,92 @@ void printMap() {
 int h(int y, int x) { // heuristic function
   return 10 * (abs(y - t.first) + abs(x - t.second));  
 }
-void astar(int y, int x) {
-  map[y][x] = '0'; // close
-  if(y == t.first && x == t.second) {
-    //cout << "REACH END" << endl;
-    return;
+
+int search(P p, int cur_g, int bound, int depth) {
+  
+  int cur_f = cur_g + h(p.first, p.second);
+  path[depth] = p;
+  if(cur_f > bound) 
+    return cur_f;
+  if(p.first == t.first && p.second == t.second) {
+    return -1;
   }
-  int dy, dx;
+  
+  int min_f = 1e9;
+  map[p.first][p.second] = '0';
+  //printMap();
   for(int k = 0; k < 8; k++) {
-    dy = y + direct[k][0];
-    dx = x + direct[k][1];
+    int dy = p.first + direct[k][0];
+    int dx = p.second + direct[k][1];
     if(dy < 0 || dy >= H || dx < 0 || dx >= W) continue;
-    if(map[dy][dx] == '#' || map[dy][dx] == '0') continue;
+    if(map[dy][dx] == '#') continue;
     if(k == 4 && (map[dy][dx + 1] == '#' || map[dy + 1][dx] == '#')) continue;
     if(k == 5 && (map[dy][dx - 1] == '#' || map[dy + 1][dx] == '#')) continue;
     if(k == 6 && (map[dy][dx - 1] == '#' || map[dy - 1][dx] == '#')) continue;
     if(k == 7 && (map[dy][dx + 1] == '#' || map[dy - 1][dx] == '#')) continue;
+    
+    bool inClosed = false;
+    for(int i = 0; i < depth; i++) {
+      if(path[i].first == dy && path[i].second == dx) {
+        inClosed = true;
+        break;
+      }
+    }
+    if(inClosed) continue;
+    
+    int next;
     if(k < 4)
-      g[dy][dx] = min(g[dy][dx], g[y][x] + 10);
+      next = search(P(dy, dx), cur_g + 10, bound, depth + 1);
     else
-      g[dy][dx] = min(g[dy][dx], g[y][x] + 14);
-    
-    if(f[dy][dx] > g[dy][dx] + h(dy, dx)) {
-      f[dy][dx] = g[dy][dx] + h(dy, dx);
-      parent[dy][dx] = P(y, x);
-    }
-    
-    if(map[dy][dx] == '.')  {
-      open.push(Q(f[dy][dx], P(dy, dx))); 
-      map[dy][dx] = 'o';
+      next = search(P(dy, dx), cur_g + 14, bound, depth + 1);
+    map[p.first][p.second] = 'o';
+    if(next == -1) {
+      return -1;
+    } else if(next < min_f) {
+      min_f = next;
+    } else {
+      // do nothing
     }
   }
-  //printMap();
-  
-  if(open.size() == 0) {
-    cout << "NO ROUTE" << endl; 
-    return;
-  }
-  
-  Q q = open.top();
-  open.pop();
-  astar(q.second.first, q.second.second);
+  return min_f;
 }
-void walkBack() {
-  P p;
 
-  p.first = t.first;
-  p.second = t.second;
-  if(parent[t.first][t.second].first == -1 && parent[t.first][t.second].second == -1) return;
-  while(true) {
-    map[p.first][p.second] = '@';
+int idastar(int y, int x) {
+  
+  int bound = h(y, x);
+  while(1) {
+    int tmp = search(P(y, x), 0, bound, 0);
+    if(tmp == -1)
+      return bound; // found
+    else if(tmp == 1e9) {
+      cout << "NO ROUTE" <<endl;
+      return -1; // no route
+    } else {
+      bound = tmp;
+    }
+  }
+}
+void walk() {
+  
+  int i = 0;
+  while(1) {
+    if(path[i].first == t.first && path[i].second == t.second)
+      break;
+    int y = path[i].first;
+    int x = path[i].second;
+    map[y][x] = '@';
     printMap();
-    if(p.first == s.first && p.second == s.second) break;
-    P back = parent[p.first][p.second];
-    p.first = back.first;
-    p.second = back.second;
+    i++;
   }
 }
 void solve() {
-  g[s.first][s.second] = 0;
-  f[s.first][s.second] = h(s.first, s.second);
+  //g[s.first][s.second] = 0;
+  //f[s.first][s.second] = h(s.first, s.second);
 
-  while(!open.empty())
-    open.pop();
-  //open.push(Q(f[s.first][s.second], s));
-  astar(s.first, s.second);
+  int res = idastar(s.first, s.second);
   cout << "----------" << endl;
-  walkBack();
-  cout << "min distance: " << f[t.first][t.second] << endl;
+  walk();
+  cout << "min distance: " << res << endl;
 }
 
 int main() {
@@ -132,9 +147,10 @@ int main() {
     for(int i = 0; i < MAX_H; i++){ 
       for(int j = 0; j < MAX_W; j++) {
         map[i][j] = 0;
-        g[i][j] = 1e8;
-        f[i][j] = 1e8;
-        parent[i][j] = P(-1, -1);
+        path[i * MAX_W + j] = P(-1, -1);
+        // g[i][j] = 1e8;
+        // f[i][j] = 1e8;
+        // parent[i][j] = P(-1, -1);
       }
     }
     
@@ -153,7 +169,6 @@ int main() {
       }
     }
     solve();
-    //printMap();
   }
   return 0;
 }
