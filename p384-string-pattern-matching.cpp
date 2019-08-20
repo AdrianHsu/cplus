@@ -45,12 +45,57 @@ int rabinKarp(string a, string b) {
   return cnt;
 }
 
+void build_lps(int* lps, string a, int al) {
+  
+  int len = 0;
+  lps[0] = 0;
+  int i = 1;
+  
+  while(i < al) {
+    if(a[i] == a[len]) {
+      len++;
+      lps[i] = len;
+      i++;
+    } else {
+      if(len != 0) len = lps[len - 1];
+      else lps[i++] = 0;
+    }
+  } 
+}
+
+int kmp(string a, string b) {
+
+  int al = a.length(), bl = b.length();
+  if(al > bl) return 0;
+  
+  int lps[al];
+  build_lps(lps, a, al);
+  
+  int i = 0, j = 0, cnt = 0;
+  while(i < bl) {
+    if(a[j] == b[i]) {
+      i++; j++;
+    }
+
+    if(j == al) {
+      cnt++;
+      j = lps[j - 1];
+    } else if(i < bl && a[j] != b[i]) {
+
+      if(j != 0) j = lps[j - 1];
+      else i++;
+    }
+  }
+
+  return cnt;
+}
+
 int main() {
 
   string a = "geek";
   string b = "geeksforgeek";
   cout << naive(a, b) << endl;
   cout << rabinKarp(a, b) << endl;
-
+  cout << kmp(a, b) << endl;
   return 0;
 }
