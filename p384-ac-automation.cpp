@@ -1,12 +1,21 @@
 #include <iostream>
 #include <cstdio>
 #include <cstring>
+#include <queue>
+
 #define MAX_N 26
 
 using namespace std;
 struct Node {
   Node* child[MAX_N];
+  Node* fail;
   int cnt;
+
+  Node(){
+    fail = NULL;
+    cnt = 0;
+    memset(child, NULL, sizeof(child));
+  }
 };
 
 Node* root;
@@ -16,37 +25,27 @@ void insert(string str) {
     char c = str[i];
     if(now->child[c - 'a'] == NULL) {
       Node* _next = new Node();
-      _next->cnt = 0;
-      memset(_next->child, 0, sizeof(_next->child));
       now->child[c - 'a'] = _next;
     }
     now = now->child[c - 'a'];
   }
   now->cnt++;
 }
-bool search(string str) {
-  Node *now = root;
-  for(int i = 0; i < str.length(); i++) {
-    char c = str[i];
-    if(now->child[c - 'a'] != NULL) {
-      now = now->child[c - 'a'];
-    } else {
-      return false;
-    }
-  }
-  return now->cnt;
+void acAutomation() {
 }
+
 void solve() {
   root = new Node();
   memset(root->child, 0, sizeof(root->child));
   
-  insert("abcde");
-  insert("acde");
-  insert("bce");
-  cout << search("bce") << endl;
-  cout << search("abce") << endl;
-  cout << search("abcde") << endl;
-  cout << search("abcdef") << endl;
+  insert("say");
+  insert("she");
+  insert("shr");
+  insert("he");
+  insert("her");
+  
+  acAutomation(); // after this, you cannot insert later on
+
 }
 int main() {
   
