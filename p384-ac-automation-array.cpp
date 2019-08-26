@@ -46,16 +46,15 @@ struct acAutomata {
   
   void build() {
 
-    // for non-exist state
     for(int i = 0; i < MAXC; i++)
-      if(ch[0][i] == -1) // if not exist
-        ch[0][i] = 0; // goto state 0
+      if(ch[0][i] == -1)
+        ch[0][i] = 0;
 
     // for depth = 1
     queue<int> Q;
     for(int i = 0; i < MAXC; i++) {
       int child = ch[0][i];
-      if(child > 0) { // child will never be -1, and also if child is 0, then it doesnt exist
+      if(child > 0) { 
         f[child] = 0;
         Q.push(child);
       }
@@ -80,6 +79,7 @@ struct acAutomata {
       }
     }
   }
+
   int find(int state, char c) {
     int ans = state;
     int i = idx(c);
@@ -95,13 +95,19 @@ void solve() {
   ac.clear();
   int arr_size = 5;
   string arr[] = {"say", "she", "shr", "he", "her"};
+  string target = "yasherhs";
+  // string arr[] = {"a", "ab", "bab", "bc", "bca", "c", "caa"};
+  // string target = "abccab";
+
   for(int i = 0; i < arr_size; i++) {
     ac.insert(arr[i], i);
   }
   ac.build();
+  // cout << ac.f[0] << endl;
+  // cout << ac.f[1] << endl;
 
-  string target = "yasherhs";
   int state = 0;
+  int cnt = 0;
   for(int i = 0; i < target.length(); i++) {
     state = ac.find(state, target[i]);
 
@@ -109,10 +115,13 @@ void solve() {
       continue;
     for(int j = 0; j < arr_size; j++) {
       if(ac.out[state] & (1 << j))
-        cout << "Word " << arr[j] << " appears from "
-                     << i - arr[j].size() + 1 << " to " << i << endl; 
+        cnt++;
+      // if(ac.out[state] & (1 << j))
+      //   cout << "Word " << arr[j] << " appears from "
+      //                << i - arr[j].size() + 1 << " to " << i << endl; 
     }
   }
+  cout << cnt << endl;
 }
 
 int main() {
