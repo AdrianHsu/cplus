@@ -22,7 +22,6 @@ struct acAutomata {
   int ch[NN][MM];
   int val[NN];
   int f[NN];
-  int last[NN];
   int pos;
 
   void clear() {
@@ -58,7 +57,6 @@ struct acAutomata {
       int child = ch[0][i];
       if(child != 0) {
         f[child] = 0;
-        last[child] = 0;
         Q.push(child);
       }
     }
@@ -74,10 +72,6 @@ struct acAutomata {
         }
         Q.push(child);
         f[child] = ch[ f[r] ][i];
-        if(val[ f[child] ] > 0)
-          last[child] = f[child];
-        else
-          last[child] = last[ f[child] ];
       }
     }
   }
