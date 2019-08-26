@@ -2,7 +2,7 @@
 #include <cstdio>
 #include <cstring>
 #define MAX_N 26
-
+//https://www.hackerearth.com/zh/practice/data-structures/advanced-data-structures/trie-keyword-tree/tutorial/
 using namespace std;
 struct Node {
   Node* child[MAX_N];

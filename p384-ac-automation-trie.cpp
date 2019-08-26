@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <cstdio>
 #include <cstring>
@@ -74,9 +75,11 @@ int query(string s) {
     if(now->child[index] != NULL) {
       now = now->child[index];
       tmp = now;
-      while(tmp->cnt > 0) {
-        cnt += tmp->cnt;
-        tmp->cnt = -1; // after this time, it will not be added again becuz -1 < 0
+      while(tmp->fail != NULL) {
+        if(tmp->cnt > 0) {
+          cnt += tmp->cnt;
+          tmp->cnt = -1;
+        }
         tmp = tmp->fail;
       }
     }
@@ -87,23 +90,27 @@ int query(string s) {
 void solve() {
   root = new Node();
   
- // insert("say");
- // insert("she");
- // insert("shr");
- // insert("he");
- // insert("her");
+  //insert("say");
+  //insert("she");
+  //insert("shr");
+  //insert("he");
+  //insert("her");
  
-  insert("a");
-  insert("ab");
-  insert("bab");
-  insert("bc");
-  insert("bca");
-  insert("c");
-  insert("caa");
+  //insert("a");
+  //insert("ab");
+  //insert("bab");
+  //insert("bc");
+  //insert("bca");
+  //insert("c");
+  //insert("caa");
+
+  insert("atcg");
+  insert("tc");
 
   acAutomation(); // after this, you cannot insert later on
   //string target = "yasherhs";
-  string target = "abccab";
+  //string target = "abccab";
+  string target = "atcg";
   cout << query(target) << endl;
 }
 int main() {
