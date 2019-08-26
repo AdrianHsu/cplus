@@ -5,28 +5,33 @@
 #include <iostream>
 #include <queue>
 
-#define MAX_M 15
-#define MAX_N 2000000005
 typedef long long ll;
 
-#define MM 4
-const int NN = 10 * 10 + 5; // 10 個pattern, 每個 pattern 長度 10，所以 Trie 最大就 100
-int M;
-ll N;
+#define MAX_M 15
+// #define MAX_N 2000000005
 
+int M; // num of patterns
+int n; // last pos id
+ll N; // length of combine string (can be very long...)
+
+#define MOD 100000
+#define MAXC 4
+#define MAXS 105 // num of state, at most 10 * 10 (which is LEN_MAX * 10 pieces of patterns)
 
 using namespace std;
 typedef long long ll;
 
 struct acAutomata {
-  int ch[NN][MM];
-  int val[NN];
-  int f[NN];
+  int go[MAXS][MAXC];
+  bool val[MAXS]; // 要嘛是 0（不會掛掉）要嘛是 1（直接掛掉，湊滿此 pattern 了）
+  int f[MAXS];
   int pos;
 
   void clear() {
     pos = 1;
-    memset(ch[0], 0, sizeof(ch[0]));
+    memset(go, -1, sizeof(go));
+    memset(val, false, sizeof(val));
+    memset(f, -1, sizeof(f));
   }
   int idx(char c) {
     if(c == 'A') return 0;
@@ -36,26 +41,29 @@ struct acAutomata {
   }
   
   void insert(string s) {
-    int dep = 0;
+    int state = 0; // start from root
+
     for(int i = 0; i < s.length(); i++) {
       int c = idx(s[i]);
-      if(ch[dep][c] == 0) {
-        memset(ch[pos], 0, sizeof(ch[pos]));
-        val[pos] = 0;
-        ch[dep][c] = pos++;
-      }
-      dep = ch[dep][c];
+      if(go[state][c] == -1)
+        go[state][c] = pos++;
+      state = go[state][c];
     }
-    val[dep] = 1;
+    val[state] = true;
   }
   
   void build() {
+
+    for(int i = 0; i < MAXC; i++) {
+      if(go[0][i] == -1)
+        go[0][i] = 0;
+    }
+
     queue<int> Q;
-    f[0] = 0; // root
     // for depth = 1
-    for(int i = 0; i < MM; i++) {
-      int child = ch[0][i];
-      if(child != 0) {
+    for(int i = 0; i < MAXC; i++) {
+      int child = go[0][i];
+      if(child > 0) {
         f[child] = 0;
         Q.push(child);
       }
@@ -63,36 +71,39 @@ struct acAutomata {
     // for depth > 1
     while(!Q.empty()) {
       int r = Q.front(); Q.pop();
-      for(int i = 0; i < MM; i++) { // ATCG 都各自建立 
-        int child = ch[r][i];
-        if(child == 0) {
-          ch[r][i] = ch[ f[r] ][i];
-          val[r] |= (val[ f[r] ]);
-          continue;
+      for(int i = 0; i < MAXC; i++) {
+        int child = go[r][i];
+        int fail = f[r];
+        if(child == -1) {
+          go[r][i] = go[ fail ][i];
+          val[r] |= val[fail];
+        } else {
+          while(go[fail][i] == -1) 
+            fail = f[ fail ];
+          fail = go[fail][i];
+          f[child] = fail;
+          val[child] |= val[fail];
+          Q.push(child);
         }
-        Q.push(child);
-        f[child] = ch[ f[r] ][i];
       }
     }
   }
 } ac;
-
-#define MOD 100000
-#define MAT 200
 struct Matrix {
-  ll mat[MAT][MAT];
+  ll mat[MAXS][MAXS];
 };
 
-int n;
+
 void initMat(Matrix &A) {
   n = ac.pos;
+
   int child_id;
   memset(A.mat, 0, sizeof(A.mat));
   for(int i = 0; i < n; i++) {
-    if(ac.val[i] == 0) {
-      for(int k = 0; k < MM; k++) {
-        child_id = ac.ch[i][k];
-        if(ac.val[child_id] == 0)
+    if(ac.val[i] == false) {
+      for(int k = 0; k < MAXC; k++) {
+        child_id = ac.go[i][k];
+        if(ac.val[child_id] == false)
           A.mat[i][child_id]++;
       }
     }
@@ -145,9 +156,10 @@ int main() {
     ac.insert(s);
   }
   ac.build();
+
   Matrix A;
   initMat(A);
-  //printMat(A);
+  // printMat(A);
   
   Matrix ans = mod_pow(A);
   ll total = 0;
