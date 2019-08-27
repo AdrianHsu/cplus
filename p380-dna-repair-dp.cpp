@@ -17,7 +17,7 @@ int M = 1; // num of testcases
 
 #define MOD 100000
 #define MAXC 4
-const int MAXS = 55 * 4;
+const int MAXS = 2005;
 
 using namespace std;
 typedef long long ll;
