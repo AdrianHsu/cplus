@@ -8,7 +8,8 @@
 typedef long long ll;
 
 #define MAX_M 15
-// #define MAX_N 2000000005
+// #define MAX_N 2000000005 // matrix mul: for large testcase
+#define MAX_N 100 // DP is only for small testcase
 
 int M; // num of patterns
 int n; // last pos id
@@ -95,7 +96,6 @@ struct Matrix {
 
 
 void initMat(Matrix &A) {
-  n = ac.pos;
 
   int id;
   memset(A.mat, 0, sizeof(A.mat));
@@ -147,6 +147,45 @@ void printMat(Matrix A) {
   }
 }
 
+int dp[MAX_N][MAXS];
+
+void solveDP() {
+  for(int i = 0; i <= N; i++)
+    for(int j = 0; j < n; j++)
+      dp[i][j] = 0;
+
+  dp[0][0] = 1;
+  for(int i = 1; i <= N; i++) {
+    for(int j = 0; j < n; j++) {
+
+      for(int k = 0; k < MAXC; k++) {
+        int child = ac.go[j][k];
+        if(ac.val[child] == false) {
+          dp[i][child] += dp[i - 1][j];
+        }
+      }
+    }
+  }
+  
+  int total = 0;
+  for(int i = 0; i < n; i++)
+    total += dp[N][i];
+
+  cout << total << endl;
+}
+
+void solve(){
+  Matrix A;
+  initMat(A);
+  // printMat(A);
+  
+  Matrix ans = mod_pow(A);
+  ll total = 0;
+  for(int i = 0; i < n; i++)
+    total = (total + ans.mat[0][i]) % MOD;
+  cout << total << endl;
+}
+
 int main() {
   scanf("%d%lld", &M, &N);
   ac.clear();
@@ -156,16 +195,9 @@ int main() {
     ac.insert(s);
   }
   ac.build();
+  n = ac.pos;
 
-  Matrix A;
-  initMat(A);
-  printMat(A);
-  
-  Matrix ans = mod_pow(A);
-  ll total = 0;
-  for(int i = 0; i < n; i++)
-    total = (total + ans.mat[0][i]) % MOD;
-  cout << total << endl;
-
+  // solveDP();
+  solve();
   return 0;
 }
