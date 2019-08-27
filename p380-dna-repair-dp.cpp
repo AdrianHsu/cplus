@@ -7,16 +7,17 @@
 
 typedef long long ll;
 
-#define MAX_M 15
-// #define MAX_N 2000000005
+#define MAX_N 55
+#define MAX_P_LEN 25
+#define MAX_T_LEN 1005
+#define INT_INF 1e9
 
-int M; // num of patterns
-int n; // last pos id
-ll N; // length of combine string (can be very long...)
+int N;
+int M = 1; // num of testcases
 
 #define MOD 100000
 #define MAXC 4
-#define MAXS 105 // num of state, at most 10 * 10 (which is LEN_MAX * 10 pieces of patterns)
+const int MAXS = 55 * 4;
 
 using namespace std;
 typedef long long ll;
@@ -78,8 +79,8 @@ struct acAutomata {
           go[r][i] = go[ fail ][i];
           val[r] |= val[fail];
         } else {
-//          while(go[fail][i] == -1) 
-//            fail = f[ fail ];
+          // while(go[fail][i] == -1) 
+          //   fail = f[ fail ];
           fail = go[fail][i];
           f[child] = fail;
           val[child] |= val[fail];
@@ -89,83 +90,58 @@ struct acAutomata {
     }
   }
 } ac;
-struct Matrix {
-  ll mat[MAXS][MAXS];
-};
 
+int dp[MAX_T_LEN][MAXS];
 
-void initMat(Matrix &A) {
-  n = ac.pos;
+void solve(string target) {
+  int tl = target.length();
+  int ans = INT_INF;
+  int sN = ac.pos; // number of states
 
-  int id;
-  memset(A.mat, 0, sizeof(A.mat));
-  for(int i = 0; i < n; i++) {
-    if(ac.val[i] == false) {
+  for(int i = 0; i <= tl; i++)
+    for(int j = 0; j < sN; j++)
+      dp[i][j] = INT_INF;
+  dp[0][0] = 0;
+
+  for(int i = 1; i <= tl; i++) {
+    char c = target[i - 1];
+    for(int j = 0; j < sN; j++) {
+      if(dp[i - 1][j] == INT_INF) continue;
+
       for(int k = 0; k < MAXC; k++) {
-        id = ac.go[i][k];
-        if(ac.val[id] == false)
-          A.mat[i][id]++;
+        int child = ac.go[j][k];
+        if(child == -1) continue;
+        if(ac.val[child] == false) {
+          int add = (ac.idx(c) != k); // 0 or 1
+          dp[i][child] = min(dp[i][child],
+            dp[i - 1][j] + add);
+        }
       }
     }
   }
-}
 
-Matrix matmul(Matrix &A, Matrix &B) {
-  Matrix R;
-  memset(R.mat, 0, sizeof(R.mat));
-  for(int i = 0; i < n; i++) {
-    for(int j = 0; j < n; j++) {
-      ll tmp = 0;
-      for(int k = 0; k < n; k++) {
-        tmp = (tmp + A.mat[i][k] * B.mat[k][j]) % MOD;
-      }
-      R.mat[i][j] = tmp % MOD;
-    }
-  }
-  return R;
-}
-Matrix mod_pow(Matrix &A) {
-  Matrix ans;
-  memset(ans.mat, 0, sizeof(ans.mat)); 
-  for(int i = 0; i < n; i++) 
-    ans.mat[i][i] = 1;
-
-  while(N > 0) {
-    if(N & 1)
-      ans = matmul(ans, A);
-    A = matmul(A, A);
-    N >>= 1;
-  }
-  return ans;
-}
-void printMat(Matrix A) {
-  for(int i = 0; i < n; i++) {
-    for(int j = 0; j < n; j++) {
-      cout << A.mat[i][j] << " ";
-    }
-    cout << endl;
-  }
+  for(int i = 0; i < sN; i++)
+    if(ac.val[i] == false)
+      ans = min(ans, dp[tl][i]);
+  if(ans == INT_INF) ans = -1;
+  printf("Case %d: %d\n", M++, ans);
 }
 
 int main() {
-  scanf("%d%lld", &M, &N);
-  ac.clear();
-  for(int i = 0; i < M; i++) {
-    string s;
-    cin >> s;
-    ac.insert(s);
-  }
-  ac.build();
 
-  Matrix A;
-  initMat(A);
-  printMat(A);
-  
-  Matrix ans = mod_pow(A);
-  ll total = 0;
-  for(int i = 0; i < n; i++)
-    total = (total + ans.mat[0][i]) % MOD;
-  cout << total << endl;
+  while(scanf("%d", &N) != EOF){
+    if(N == 0) return 0;
+    ac.clear();
+    for(int i = 0; i < N; i++){
+      string s;
+      cin >> s;
+      ac.insert(s);
+    }
+    ac.build();
+    string target;
+    cin >> target;
+    solve(target);
+  }
 
   return 0;
 }

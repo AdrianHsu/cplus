@@ -9,15 +9,18 @@ using namespace std;
 struct Node {
   Node* child[MAX_N];
   Node* fail;
+  int pos;
   int cnt;
 
   Node(){
     fail = NULL;
+    pos = -1;
     cnt = 0;
     memset(child, 0, sizeof(child));
   }
 };
 
+int pos = 1;
 Node* root;
 void insert(string str) {
   Node *now = root; 
@@ -25,6 +28,7 @@ void insert(string str) {
     char c = str[i];
     if(now->child[c - 'a'] == NULL) {
       Node* _next = new Node();
+      _next->pos = pos++;
       now->child[c - 'a'] = _next;
     }
     now = now->child[c - 'a'];
@@ -88,7 +92,7 @@ int query(string s) {
 
 void solve() {
   root = new Node();
-  
+  root->pos = 0;  
   //insert("say");
   //insert("she");
   //insert("shr");
