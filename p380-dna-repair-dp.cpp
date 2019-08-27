@@ -110,7 +110,10 @@ void solve(string target) {
 
       for(int k = 0; k < MAXC; k++) {
         int child = ac.go[j][k];
-        if(child == -1) continue;
+        // if(child == -1) {
+        //   cout << "?" << endl;
+        //   continue;
+        // }
         if(ac.val[child] == false) {
           int add = (ac.idx(c) != k); // 0 or 1
           dp[i][child] = min(dp[i][child],
