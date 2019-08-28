@@ -34,7 +34,7 @@ int* manberMyers(string txt, int n) {
     int rank_new = 0;
     s[0].rank[2] = rank_new;
     ind[s[0].index] = 0;
-    
+
     for(int i = 1; i < n; i++) {
       if(s[i].rank[0] == s[i - 1].rank[0] && 
          s[i].rank[1] == s[i - 1].rank[1])
@@ -69,7 +69,7 @@ int* manberMyers(string txt, int n) {
 
 
 int main() {
-  string txt = "banana";
+  string txt = "abracadabra";
   int n = txt.length();
   int *sa = manberMyers(txt, n);
   for(int i = 0; i < n; i++)
