@@ -77,7 +77,7 @@ int* manberMyers(int* A, int n) {
 
 
 int main() {
-  scanf("%d", &N);
+  cin >> N;
   vector<int> ans;
 
   int *arr = new int[MAX_N];
