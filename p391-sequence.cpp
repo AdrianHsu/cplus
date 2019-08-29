@@ -15,6 +15,7 @@ struct Suffix {
   int index;
   int rank[3];
 };
+int in[MAX_N], arr[MAX_N], doubleArr[2 * MAX_N];
 
 int cmp(struct Suffix a, struct Suffix b) {
   if(a.rank[0] == b.rank[0])
@@ -78,48 +79,45 @@ int* manberMyers(int* A, int n) {
   return sa;
 }
 
-void solve() {
-  vector<int> ans;
-  int *arr = new int[MAX_N];
-  for(int i = 0; i < N; i++)
-    cin >> arr[i];
-  reverse(arr, arr + N);
-  int *sa = manberMyers(arr, N);
-  int k;
-  for(k = 0; k < N; k++) {
-    if(sa[k] > 1) { // 至少要幫第二組、第三組，各留一個數字
-      break;
-    }
-  }
-  for(int i = sa[k]; i < N; i++)
-    ans.push_back(arr[i]);
-  //cout << sa[0] << endl; 
-  N = sa[k];
-  int *doubleArr = new int[2 * MAX_N];
-  for(int i = 0; i < 2 * N; i++) {
-    doubleArr[i] = arr[i % N];
-  }
-  sa = manberMyers(doubleArr, 2 * N);
-  for(k = 0; k < 2 * N; k++) {
-    if(sa[k] > 0 && sa[k] < N) {
-      break;
-    }
-  }
-  for(int i = sa[k]; i < N; i++)
-    ans.push_back(doubleArr[i]);
-  for(int i = 0; i < sa[k]; i++)
-    ans.push_back(doubleArr[i]);
+// void solve() {
+//   vector<int> ans;
+//   for(int i = 0; i < N; i++)
+//     cin >> arr[i];
+//   reverse(arr, arr + N);
+//   int *sa = manberMyers(arr, N);
+//   int k;
+//   for(k = 0; k < N; k++) {
+//     if(sa[k] > 1) { // 至少要幫第二組、第三組，各留一個數字
+//       break;
+//     }
+//   }
+//   for(int i = sa[k]; i < N; i++)
+//     ans.push_back(arr[i]);
+//   //cout << sa[0] << endl; 
+//   N = sa[k];
+//   for(int i = 0; i < 2 * N; i++) {
+//     doubleArr[i] = arr[i % N];
+//   }
+//   sa = manberMyers(doubleArr, 2 * N);
+//   for(k = 0; k < 2 * N; k++) {
+//     if(sa[k] > 0 && sa[k] < N) {
+//       break;
+//     }
+//   }
+//   for(int i = sa[k]; i < N; i++)
+//     ans.push_back(doubleArr[i]);
+//   for(int i = 0; i < sa[k]; i++)
+//     ans.push_back(doubleArr[i]);
 
-  for(int i = 0; i < ans.size(); i++)
-    cout << ans[i] << endl; 
-}
+//   for(int i = 0; i < ans.size(); i++)
+//     cout << ans[i] << endl; 
+// }
 
 map<int, int> src2i, i2src;
 map<int, int>::iterator it;
 
 void solveDiscrete() {
   vector<int> ans;
-  int *in = new int[MAX_N];
   for(int i = 0; i < N; i++) {
     cin >> in[i];
     src2i[in[i]] = -1; // any value is ok, just put one thing into this memory
@@ -130,7 +128,6 @@ void solveDiscrete() {
     i2src[idx] = it->first; // key = cnt, value = array value
     it->second = idx++; // -1 will be replaced by the real idx
   }
-  int *arr = new int[MAX_N];
   for(int i = 0; i < N; i++)
     arr[N - i - 1] = src2i[ in[i] ];
   
@@ -149,7 +146,6 @@ void solveDiscrete() {
     ans.push_back(i2src[ arr[i] ]);
   //cout << sa[0] << endl; 
   N = sa[k];
-  int *doubleArr = new int[2 * MAX_N];
   for(int i = 0; i < 2 * N; i++) {
     doubleArr[i] = arr[i % N];
   }
