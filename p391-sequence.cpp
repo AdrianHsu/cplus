@@ -85,16 +85,21 @@ int main() {
     cin >> arr[i];
   reverse(arr, arr + N);
   int *sa = manberMyers(arr, N);
-  for(int i = sa[0]; i < N; i++)
+  int k;
+  for(k = 0; k < N; k++) {
+    if(sa[k] > 1) { // 至少要幫第二組、第三組，各留一個數字
+      break;
+    }
+  }
+  for(int i = sa[k]; i < N; i++)
     ans.push_back(arr[i]);
   //cout << sa[0] << endl; 
-  N = sa[0];
+  N = sa[k];
   int *doubleArr = new int[2 * MAX_N];
   for(int i = 0; i < 2 * N; i++) {
     doubleArr[i] = arr[i % N];
   }
   sa = manberMyers(doubleArr, 2 * N);
-  int k;
   for(k = 0; k < 2 * N; k++) {
     if(sa[k] > 0 && sa[k] < N) {
       break;
