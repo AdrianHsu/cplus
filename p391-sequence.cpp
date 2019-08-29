@@ -2,8 +2,11 @@
 #include <cstring>
 #include <algorithm>
 #include <vector>
+#include <map>
 
 #define MAX_N 200010
+// 沒有告訴數值的上限(只給了array內元素數量的上限 N)，所以需要離散化。
+// 否則會 TLE
 
 using namespace std;
 int N;
@@ -75,11 +78,8 @@ int* manberMyers(int* A, int n) {
   return sa;
 }
 
-
-int main() {
-  cin >> N;
+void solve() {
   vector<int> ans;
-
   int *arr = new int[MAX_N];
   for(int i = 0; i < N; i++)
     cin >> arr[i];
@@ -112,4 +112,65 @@ int main() {
 
   for(int i = 0; i < ans.size(); i++)
     cout << ans[i] << endl; 
+}
+
+map<int, int> src2i, i2src;
+map<int, int>::iterator it;
+
+void solveDiscrete() {
+  vector<int> ans;
+  int *in = new int[MAX_N];
+  for(int i = 0; i < N; i++) {
+    cin >> in[i];
+    src2i[in[i]] = -1; // any value is ok, just put one thing into this memory
+  }
+  //reverse(arr, arr + N);
+  int idx = 0;
+  for(it = src2i.begin(); it !=src2i.end(); it++) {
+    i2src[idx] = it->first; // key = cnt, value = array value
+    it->second = idx++; // -1 will be replaced by the real idx
+  }
+  int *arr = new int[MAX_N];
+  for(int i = 0; i < N; i++)
+    arr[N - i - 1] = src2i[ in[i] ];
+  
+  //for(int i = 0 ; i < N; i++)
+  //  cout << arr[i] << " "; // reverse 後的大小「關係」排序，而不是原本的數值的排序
+  //cout << endl;
+
+  int *sa = manberMyers(arr, N);
+  int k;
+  for(k = 0; k < N; k++) {
+    if(sa[k] > 1) { // 至少要幫第二組、第三組，各留一個數字
+      break;
+    }
+  }
+  for(int i = sa[k]; i < N; i++)
+    ans.push_back(i2src[ arr[i] ]);
+  //cout << sa[0] << endl; 
+  N = sa[k];
+  int *doubleArr = new int[2 * MAX_N];
+  for(int i = 0; i < 2 * N; i++) {
+    doubleArr[i] = arr[i % N];
+  }
+  sa = manberMyers(doubleArr, 2 * N);
+  for(k = 0; k < 2 * N; k++) {
+    if(sa[k] > 0 && sa[k] < N) {
+      break;
+    }
+  }
+  for(int i = sa[k]; i < N; i++)
+    ans.push_back(i2src[ doubleArr[i] ] );
+  for(int i = 0; i < sa[k]; i++)
+    ans.push_back(i2src[ doubleArr[i] ] );
+
+  for(int i = 0; i < ans.size(); i++)
+    cout << ans[i] << endl; 
+}
+
+int main() {
+  cin >> N;
+  
+  // solve();
+  solveDiscrete();
 }
