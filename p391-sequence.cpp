@@ -1,8 +1,12 @@
 #include <iostream>
 #include <cstring>
 #include <algorithm>
+#include <vector>
+
+#define MAX_N 100
 
 using namespace std;
+int N;
 
 struct Suffix {
   int index;
@@ -15,14 +19,14 @@ int cmp(struct Suffix a, struct Suffix b) {
   
   return a.rank[0] < b.rank[0];
 }
-int* manberMyers(string txt, int n) {
+int* manberMyers(int* A, int n) {
   
   struct Suffix s[n];
   for(int i = 0; i < n; i++) {
     s[i].index = i;
-    s[i].rank[0] = txt[i] - 'a';
+    s[i].rank[0] = A[i];
     if(i == n - 1) s[i].rank[1] = -1;
-    else s[i].rank[1] = txt[i + 1] - 'a';
+    else s[i].rank[1] = A[i + 1];
   }
   // After this, all suffixes are sorted according to first 2 characters.
   sort(s, s + n, cmp);
@@ -73,9 +77,35 @@ int* manberMyers(string txt, int n) {
 
 
 int main() {
-  string txt = "abracadabra";
-  int n = txt.length();
-  int *sa = manberMyers(txt, n);
-  for(int i = 0; i < n; i++)
-    cout << i << ", " << sa[i] << endl;
+  scanf("%d", &N);
+  vector<int> ans;
+
+  int *arr = new int[MAX_N];
+  for(int i = 0; i < N; i++)
+    cin >> arr[i];
+  reverse(arr, arr + N);
+  int *sa = manberMyers(arr, N);
+  for(int i = sa[0]; i < N; i++)
+    ans.push_back(arr[i]);
+  //cout << sa[0] << endl; 
+  N = sa[0];
+  int *doubleArr = new int[2 * MAX_N];
+  for(int i = 0; i < 2 * N; i++) {
+    doubleArr[i] = arr[i % N];
+  }
+  sa = manberMyers(doubleArr, 2 * N);
+  int k;
+  for(k = 0; k < 2 * N; k++) {
+    if(sa[k] > 0 && sa[k] < N) {
+      break;
+    }
+  }
+  for(int i = sa[k]; i < N; i++)
+    ans.push_back(doubleArr[i]);
+  for(int i = 0; i < sa[k]; i++)
+    ans.push_back(doubleArr[i]);
+
+  for(int i = 0; i < ans.size(); i++)
+    cout << ans[i] << " ";
+  cout << endl;
 }
