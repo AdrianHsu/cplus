@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <vector>
 
-#define MAX_N 100
+#define MAX_N 200010
 
 using namespace std;
 int N;
@@ -106,6 +106,5 @@ int main() {
     ans.push_back(doubleArr[i]);
 
   for(int i = 0; i < ans.size(); i++)
-    cout << ans[i] << " ";
-  cout << endl;
+    cout << ans[i] << endl; 
 }
