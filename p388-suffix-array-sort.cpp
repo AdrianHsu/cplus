@@ -70,6 +70,27 @@ int* manberMyers(string txt, int n) {
     sa[i] = s[i].index;
   return sa;
 }
+int* kasai(string S, int* sa, int n) {
+  int* lcp = new int [n];
+  int inv_sa[n];
+  for(int i = 0; i < n; i++)
+    inv_sa[ sa[i] ] = i;
+
+  int k = 0;
+  for(int i = 0; i < n; i++) {
+    if(inv_sa[i] == n - 1) {
+      k = 0;
+      continue;
+    }
+    int j =  sa[inv_sa[i] + 1];
+    while(i + k < n && j + k < n && S[i + k] == S[j + k])
+      k++;
+    
+    lcp[inv_sa[i]] = k;
+    if(k > 0) k--;
+  }
+  return lcp;
+}
 
 
 int main() {
@@ -78,4 +99,9 @@ int main() {
   int *sa = manberMyers(txt, n);
   for(int i = 0; i < n; i++)
     cout << i << ", " << sa[i] << endl;
+  
+  int *lcp = kasai(txt, sa, n);
+  for(int i = 0; i < n; i++)
+    cout << i << ", " << lcp[i] << endl;
+
 }
