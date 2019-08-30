@@ -75,6 +75,8 @@ int* kasai(string S, int* sa, int n) {
   int inv_sa[n];
   for(int i = 0; i < n; i++)
     inv_sa[ sa[i] ] = i;
+  //for(int i = 0; i < n; i++)
+  //  cout << inv_sa[i] << endl;
 
   int k = 0;
   for(int i = 0; i < n; i++) {
