@@ -3,7 +3,7 @@
 #include <cstring>
 #include <algorithm>
 
-#define MAX_N 1000005
+#define MAX_N 1005
 using namespace std;
 
 
