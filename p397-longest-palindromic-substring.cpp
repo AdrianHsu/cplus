@@ -1,42 +1,47 @@
 #include <iostream>
 #include <cstdio>
 #include <cstring>
+#include <algorithm>
 
-#define MAX_N 1000
+#define MAX_N 1000005
 using namespace std;
 
-int data[MAX_N * 2 - 1];
-int N, n;
 
-void init() {
-  n = 1;
-  while(n < N)
-    n *= 2;
-  for(int i = 0; i < 2 * n - 1; i++)
-    data[i] = 1e9;
-}
+struct SegmentTree {
 
-void update(int k, int a) {
-  k += n - 1;
-  data[k] = a;
+  int data[MAX_N * 2 - 1];
+  int N, n;
 
-  while(k > 0) {
-     k = (k - 1) >> 1;
-     data[k] = min(data[2 * k + 1], data[2 * k + 2]);
+  void init() {
+    n = 1;
+    while(n < N)
+      n *= 2;
+    for(int i = 0; i < 2 * n - 1; i++)
+      data[i] = 1e9;
   }
-}
-
-int query(int a, int b, int k, int l, int r) {
-  if(r <= a || l >= b) return 1e9;
   
-  if(a <= l && r <= b) 
-    return data[k];
-  else {
-    int vl = query(a, b, 2 * k + 1, l, (l + r) >> 1);
-    int vr = query(a, b, 2 * k + 2, (l + r) >> 1, r);
-    return min(vl, vr);
+  void update(int k, int a) {
+    k += n - 1;
+    data[k] = a;
+  
+    while(k > 0) {
+       k = (k - 1) >> 1;
+       data[k] = min(data[2 * k + 1], data[2 * k + 2]);
+    }
   }
-}
+  
+  int query(int a, int b, int k, int l, int r) {
+    if(r <= a || l >= b) return 1e9;
+    
+    if(a <= l && r <= b) 
+      return data[k];
+    else {
+      int vl = query(a, b, 2 * k + 1, l, (l + r) >> 1);
+      int vr = query(a, b, 2 * k + 2, (l + r) >> 1, r);
+      return min(vl, vr);
+    }
+  }
+} segTree;
 
 struct Suffix {
   int index;
@@ -127,13 +132,13 @@ int* kasai(string S, int* sa, int* inv_sa, int n) {
   return lcp;
 }
 
-
-void solveLCP(string S) {
+int solveLCP(string S) {
+  
+  int S_len = S.length();
   string T = S;
   reverse(T.begin(), T.end());
-  string txt = S;// + '$' + T;
-
-  N = txt.length();
+  string txt = S + '$' + T + '\0';
+  int N = txt.length();
 
   int *sa = manberMyers(txt, N);
   int *inv_sa = new int[N];
@@ -141,95 +146,96 @@ void solveLCP(string S) {
     inv_sa[ sa[i] ] = i;
 
   int *lcp = kasai(txt, sa, inv_sa, N);
-  // int *lcp = new int[N + 1];
-  // for(int i = 1; i <= N; i++)
-  //   lcp[i] = lcp2[i - 1];
-  // lcp[0] = 0;
+  //cout << "i  : ";
+  //for(int i = 0; i < N; i++)
+  //  cout << i << " ";
+  //cout << endl;
+  //cout << "sa : ";
+  //for(int i = 0; i < N; i++)
+  //  cout << sa[i] << " ";
+  //cout << endl;
+  //cout << "isa: ";
+  //for(int i = 0; i < N; i++)
+  //  cout << inv_sa[i] << " ";
+  //cout << endl;
+  //cout << "lcp: ";
+  //for(int i = 0; i < N; i++)
+  //  cout << lcp[i] << " ";
+  //cout << endl;
 
-  cout << "i  : ";
+  segTree.N = N;
+  segTree.init();
   for(int i = 0; i < N; i++)
-    cout << i << " ";
-  cout << endl;
-  cout << "sa : ";
-  for(int i = 0; i < N; i++)
-    cout << sa[i] << " ";
-  cout << endl;
-  cout << "isa: ";
-  for(int i = 0; i < N; i++)
-    cout << inv_sa[i] << " ";
-  cout << endl;
-  cout << "lcp: ";
-  for(int i = 0; i < N; i++)
-    cout << lcp[i] << " ";
-  cout << endl;
+    segTree.update(i, lcp[i]);
 
-  init();
-  for(int i = 0; i < N; i++)
-    update(i, lcp[i]);
-
-  // for(int i = 0; i < 2 * n - 1; i++)
-  //   cout << data[i] << " ";
-  // cout << endl;
+  //for(int i = 0; i < 2 * segTree.n - 1; i++)
+  //  cout << segTree.data[i] << " ";
+  //cout << endl;
 
   int ans = 0;
-  for(int i = 0; i < N; i++) {
-    int j = 2 * N - i;
-    int lb = min(inv_sa[i], inv_sa[j]);
-    int ub = max(inv_sa[i], inv_sa[j]);
-    int l = query(lb, ub, 0, 0, n);
-    if(l != 1e9) ans = max(ans, 2 * l - 1);
-  }  
 
-  for(int i = 1; i < N; i++) {
-    int j = 2 * N - i + 1;
+  for(int i = 0; i < S_len; i++) {
+    int j = 2 * S_len - i;
     int lb = min(inv_sa[i], inv_sa[j]);
     int ub = max(inv_sa[i], inv_sa[j]);
-    int l = query(lb, ub, 0, 0, n);
+    int l = segTree.query(lb, ub, 0, 0, segTree.n);
+    //cout << lb << ub << l << endl;
+    if(l != 1e9) ans = max(ans, 2 * l - 1);
+  }
+  
+  for(int i = 1; i < S_len; i++) {
+    int j = 2 * S_len - i + 1;
+    int lb = min(inv_sa[i], inv_sa[j]);
+    int ub = max(inv_sa[i], inv_sa[j]);
+    int l = segTree.query(lb, ub, 0, 0, segTree.n);
     if(l != 1e9) ans = max(ans, 2 * l);
   }
-  cout << ans << endl;
+  return ans;
 }
 
 
-bool dp[MAX_N][MAX_N];
-void solveDP(string str) {
-  int n = str.length();
-  // dp[i][j] will be false if substring str[i..j] 
-  // is not palindrome. 
-  memset(dp, 0, sizeof(dp));
-  int s = 0;
+// bool dp[MAX_N][MAX_N];
+// void solveDP(string str) {
+//   int n = str.length();
+//   // dp[i][j] will be false if substring str[i..j] 
+//   // is not palindrome. 
+//   memset(dp, 0, sizeof(dp));
+//   int s = 0;
 
-  int res = 1;
-  for(int i = 0; i < n; i++) {
-    dp[i][i] = 1;
-    if(i < n - 1 && str[i] == str[i + 1]){
-      dp[i][i + 1] = 1;
-      s = i;
-      res = 2;
-    }
-  }
-  // 不必把 odd, even 的狀況分開
-  for(int len = 3; len <= n; len++) {
-    for(int l = 0; l + len <= n; l++) { // <= n 是因為右界是 open bound
-      int r = l + len - 1;
-      // 照理說 (長度 - 2) 的 subproblem 已經有解，所以可用dp[l + 1][r - 1] 
-      if(dp[l + 1][r - 1]) {
-        if(str[l] == str[r]) {
-          dp[l][r] = 1;
-          res = max(res, len);
-          s = l;
-        }
-      }
-    }
-  }
-  cout << "len: " << res << endl;
-  cout << str.substr(s, res) << endl;
-}
+//   int res = 1;
+//   for(int i = 0; i < n; i++) {
+//     dp[i][i] = 1;
+//     if(i < n - 1 && str[i] == str[i + 1]){
+//       dp[i][i + 1] = 1;
+//       s = i;
+//       res = 2;
+//     }
+//   }
+//   // 不必把 odd, even 的狀況分開
+//   for(int len = 3; len <= n; len++) {
+//     for(int l = 0; l + len <= n; l++) { // <= n 是因為右界是 open bound
+//       int r = l + len - 1;
+//       // 照理說 (長度 - 2) 的 subproblem 已經有解，所以可用dp[l + 1][r - 1] 
+//       if(dp[l + 1][r - 1]) {
+//         if(str[l] == str[r]) {
+//           dp[l][r] = 1;
+//           res = max(res, len);
+//           s = l;
+//         }
+//       }
+//     }
+//   }
+//   cout << "len: " << res << endl;
+//   cout << str.substr(s, res) << endl;
+// }
 
 int main() {
-  string str = "abracadabra";
-  // string str = "forgeeksskeegfor";
-  // string str = "mississippi";
-  // solveDP(str);
-  solveLCP(str);
+  string input;
+  int cnt = 1;
+  while(cin >> input) {
+    if(input == "END") return 0;
+    // solveDP(input);
+    int ans = solveLCP(input);
+    cout << "Case " << cnt++ << ": " << ans << endl;
+  }
 }
