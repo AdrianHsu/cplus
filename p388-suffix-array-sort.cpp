@@ -75,8 +75,8 @@ int* kasai(string S, int* sa, int n) {
   int inv_sa[n];
   for(int i = 0; i < n; i++)
     inv_sa[ sa[i] ] = i;
-  //for(int i = 0; i < n; i++)
-  //  cout << inv_sa[i] << endl;
+  for(int i = 0; i < n; i++)
+    cout << i << ", " << inv_sa[i] << endl;
 
   int k = 0;
   for(int i = 0; i < n; i++) {
@@ -96,7 +96,8 @@ int* kasai(string S, int* sa, int n) {
 
 
 int main() {
-  string txt = "abracadabra";
+  string txt = "adacadb$bdacada";
+  //  string txt = "abracadabra";
   int n = txt.length();
   int *sa = manberMyers(txt, n);
   for(int i = 0; i < n; i++)
