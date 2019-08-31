@@ -188,6 +188,7 @@ int solveLCP(string S) {
     int lb = min(inv_sa[i], inv_sa[j]);
     int ub = max(inv_sa[i], inv_sa[j]);
     int l = segTree.query(lb, ub, 0, 0, segTree.n);
+    //cout << lb << ub << l << endl;
     if(l != 1e9) ans = max(ans, 2 * l);
   }
   return ans;
