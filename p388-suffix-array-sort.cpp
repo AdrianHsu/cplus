@@ -96,7 +96,8 @@ int* kasai(string S, int* sa, int n) {
 
 
 int main() {
-  string txt = "adacadb$bdacada";
+  //string txt = "adacadb$bdacada";
+  string txt = "abcddcbaec$ceabcddcba";
   //  string txt = "abracadabra";
   int n = txt.length();
   int *sa = manberMyers(txt, n);
