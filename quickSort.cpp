@@ -7,15 +7,16 @@ using namespace std;
 int partition(vector<int>& nums, int low, int high) {
   // Step 1. Pick a pivot
   int width = high - low + 1;
-  int pivot = (rand() % width) + low;
-  int target = high;
-  swap(nums[pivot], nums[target]); // 放到最後面，方便處理 
+  int r = (rand() % width) + low;
+  swap(nums[r], nums[high]); // 放到最後面，方便處理 
+  int pivot = nums[high];
+
 
   // Step 2. left < pivot,  right > pivot
   vector<int> lower;
   vector<int> higher;
   for(int i = low; i < high; i++) {
-    if(nums[i] <= nums[target]) {
+    if(nums[i] <= pivot) {
       lower.push_back(nums[i]);
     } else {
       higher.push_back(nums[i]);
@@ -23,18 +24,19 @@ int partition(vector<int>& nums, int low, int high) {
   }
 
   int cnt = 0;
+  int pi = 0;
   for(int i = low; i <= high; i++, cnt++) {
     if(cnt < lower.size()) {
       nums[i] = lower[cnt];
     } else if(cnt == lower.size()) {
-      nums[i] = nums[target];
-      pivot = i;
+      nums[i] = pivot;
+      pi = i;
     } else {
       nums[i] = higher[cnt - 1 - lower.size()];
     }
   }
 
-  return pivot;
+  return pi;
 }
 
 void quickSort(vector<int>& nums, int low, int high) {
